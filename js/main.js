@@ -1,7 +1,7 @@
 // ── sendMessage ───────────────────────────────────────────────────────────────
 async function sendMessage() {
   if (!getToken()) {
-    addMessage("ai", "請先使用 Email 登入後再開始查詢。");
+    addMessage("ai", "請先登入後再開始查詢。");
     return;
   }
   const input = document.getElementById("userInput");
