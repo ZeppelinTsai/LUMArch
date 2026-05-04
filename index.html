@@ -124,6 +124,10 @@
         <div class="pricing-note">
           免費試用後需升級 Pro 才可繼續使用 👉
           <strong>Pro 方案：NT$99 / 月</strong>
+          <br />
+          <button class="upgrade-link" onclick="openUpgradeModal()">
+            升級 Pro</button
+          >✔ 即時法規整理 ✔ 附條文來源 ✔ 不再手動翻法規
         </div>
       </div>
     </div>
@@ -205,6 +209,35 @@
             >
               使用 Google 登入（未完成）
             </button> -->
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="upgradeModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">升級 LUMArch Pro</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+
+          <div class="modal-body">
+            <p><strong>Pro 方案：NT$99 / 月</strong></p>
+            <ul>
+              <li>不限次數查詢建築法規問題</li>
+              <li>回答附條文來源</li>
+              <li>節省手動翻法規時間</li>
+            </ul>
+            <button class="btn btn-dark w-100" onclick="startUpgrade()">
+              立即升級
+            </button>
+            <div class="text-muted mt-2 small">
+              金流服務申請中，正式開通後即可線上付款。
+            </div>
           </div>
         </div>
       </div>

@@ -874,3 +874,19 @@ body {
   color: #888;
   margin-top: 6px;
 }
+.pricing-note {
+  text-align: center;
+  font-size: 13px;
+  color: #8a7a64;
+  margin-top: 6px;
+}
+
+.upgrade-link {
+  margin-left: 8px;
+  border: 1px solid #d6522c;
+  background: #d6522c;
+  color: white;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 12px;
+}
