@@ -51,6 +51,7 @@ async function handleEmailLogin() {
   localStorage.setItem("lumarch_user", JSON.stringify(data.user));
 
   renderAuthState();
+  updatePricingVisibility(user);
 }
 
 function getToken() {
@@ -199,6 +200,16 @@ function startUpgrade() {
     title: "金流申請中",
     text: "LUMArch Pro 即將開放線上付款。",
     confirmButtonText: "知道了",
-    scrollbarPadding: false, // ⭐ 重點：避免升級後頁面跳動
+    heightAuto: false, // ⭐ 重點：避免升級後頁面跳動
   });
+}
+function updatePricingVisibility(user) {
+  const el = document.getElementById("pricingNote");
+  if (!el) return;
+
+  if (user && user.plan === "pro") {
+    el.style.display = "none";
+  } else {
+    el.style.display = "flex";
+  }
 }

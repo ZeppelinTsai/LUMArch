@@ -33,6 +33,7 @@
           </div>
         </div>
         <button class="new-chat-btn" onclick="newChat()">✦ 新增討論串</button>
+        <!-- 資料庫 -->
         <div class="history-label">歷史紀錄</div>
         <div id="historyList"></div>
         <div class="sidebar-footer">
@@ -120,8 +121,8 @@
         </div>
         <div class="disclaimer">本系統提供法規輔助分析，非正式法律意見。</div>
 
-        <div class="pricing-note">
-          <span>Pro：NT$99/月，解鎖不限次數查詢</span>
+        <div class="pricing-note" id="pricingNote">
+          <span>Pro：NT$99/月，解鎖更多查詢</span>
           <button class="upgrade-link" onclick="openUpgradeModal()">
             升級
           </button>
@@ -225,7 +226,7 @@
           <div class="modal-body">
             <p><strong>Pro 方案：NT$99 / 月</strong></p>
             <ul>
-              <li>不限次數查詢建築法規問題</li>
+              <li>更高查詢額度與更完整回應</li>
               <li>回答附條文來源</li>
               <li>節省手動翻法規時間</li>
             </ul>
