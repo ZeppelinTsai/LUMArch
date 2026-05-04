@@ -196,13 +196,7 @@ function openUpgradeModal() {
 }
 
 function startUpgrade() {
-  Swal.fire({
-    icon: "info",
-    title: "金流申請中",
-    text: "LUMArch Pro 即將開放線上付款。",
-    confirmButtonText: "知道了",
-    heightAuto: false, // ⭐ 重點：避免升級後頁面跳動
-  });
+  window.location.href = `${API_BASE}/api/payment/create-order`;
 }
 function updatePricingVisibility(user) {
   const el = document.getElementById("pricingNote");
