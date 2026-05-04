@@ -241,7 +241,7 @@ function formatMessage(text) {
   }
   return (
     html ||
-    `<p style="line-height:1.8;white-space:pre-wrap;">${escapeHtml(raw)}</p>`
+    `<div style="line-height:1.8;">${escapeHtml(raw).replace(/\n/g, "<br>")}</div>`
   );
 }
 
