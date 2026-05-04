@@ -195,8 +195,22 @@ function openUpgradeModal() {
   modal.show();
 }
 
-function startUpgrade() {
-  window.location.href = `${API_BASE}/api/payment/create-order`;
+async function startUpgrade() {
+  const token = getToken();
+
+  const res = await fetch(`${API_BASE}/api/payment/create-order`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    credentials: "include",
+  });
+
+  const html = await res.text();
+
+  document.open();
+  document.write(html);
+  document.close();
 }
 function updatePricingVisibility(user) {
   const el = document.getElementById("pricingNote");
