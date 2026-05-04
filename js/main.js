@@ -79,7 +79,20 @@ async function sendMessage() {
       return;
     }
 
-    const aiText = data.answer || "抱歉，無法取得回應。";
+    let aiText = data.answer || "抱歉，無法取得回應。";
+
+    const hasSources = (data.provided_sources || []).length > 0;
+    const hasSrcTag = /\{src:\[[^\]]+\]\}/.test(aiText);
+
+    if (hasSources && !hasSrcTag) {
+      const sourceLines = data.provided_sources
+        .slice(0, 5)
+        .map((s) => `[${s.sid}] ${s.loc_str}`)
+        .join("\n");
+
+      aiText += `\n\n參考來源:\n${sourceLines}`;
+    }
+
     const srcMap = {};
     (data.provided_sources || []).forEach((s) => {
       srcMap[s.sid] = s;
