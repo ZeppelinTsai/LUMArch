@@ -195,7 +195,18 @@ function openUpgradeModal() {
   modal.show();
 }
 
+const PAYMENT_ENABLED = false;
+
 function startUpgrade() {
+  if (!PAYMENT_ENABLED) {
+    Swal.fire({
+      title: "金流審核中",
+      text: "預計 1~3 天內開通，敬請期待 🚀",
+      icon: "info",
+    });
+    return;
+  }
+
   const token = getToken();
   window.location.href = `${API_BASE}/api/payment/checkout?access_token=${encodeURIComponent(token)}`;
 }
