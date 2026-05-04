@@ -160,51 +160,55 @@ function formatMessage(text) {
     raw.includes("詳細說明:") &&
     raw.includes("參考來源:");
   if (!ok) {
-  let body = raw.replace(/\n*\s*參考來源\s*\{src:\[[^\]]+\]\}\s*/g, "");
-  body = body.replace(/\n*\s*參考來源\s*$/g, "");
+    let body = raw.replace(/\n*\s*參考來源\s*\{src:\[[^\]]+\]\}\s*/g, "");
+    body = body.replace(/\n*\s*參考來源\s*$/g, "");
 
-  const srcMatch = raw.match(/\{src:\[([^\]]+)\]\}/);
+    const srcMatch = raw.match(/\{src:\[([^\]]+)\]\}/);
 
-  let html = `
+    let html = `
     <div class="plain-answer">
       ${escapeHtml(body).replace(/\n/g, "<br>")}
     </div>
   `;
 
-  if (srcMatch) {
-    const ids = srcMatch[1];
+    if (srcMatch) {
+      const ids = srcMatch[1];
 
-    html += `
+      html += `
       <div class="sources-block compact">
         <div class="sources-label">參考來源（點擊閱覽條文）</div>
         <div class="source-list">
-          ${ids.split(",").map(id => {
-            const sid = id.trim();
-            const src = lastSourceBySid?.get(sid);
+          ${ids
+            .split(",")
+            .map((id) => {
+              const sid = id.trim();
+              const src = lastSourceBySid?.get(sid);
 
-            const name =
-              src?.loc_str ||
-              src?.law_name ||
-              src?.title ||
-              src?.source_title ||
-              src?.name ||
-              sid;
+              const name =
+                src?.loc_str ||
+                src?.law_name ||
+                src?.title ||
+                src?.source_title ||
+                src?.name ||
+                sid;
 
-            return `
+              return `
               <div class="source-row" data-sid="${sid}" onclick="openLawSid(this)">
                 <span class="source-num">${sid}</span>
                 <span class="source-name">${escapeHtml(name)}</span>
                 <span class="source-arrow">›</span>
               </div>
             `;
-          }).join("")}
+            })
+            .join("")}
         </div>
       </div>
     `;
-  }
+    }
 
-  return html;
-}= (
+    return html;
+  }
+  const topic = (
     pickSection(raw, "主題:", ["摘要:", "詳細說明:", "參考來源:"]) || ""
   ).trim();
   const summaryBlock = pickSection(raw, "摘要:", ["詳細說明:", "參考來源:"]);
