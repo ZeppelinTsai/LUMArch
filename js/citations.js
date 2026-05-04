@@ -160,27 +160,30 @@ function formatMessage(text) {
     raw.includes("詳細說明:") &&
     raw.includes("參考來源:");
   if (!ok) {
-    let fallback = escapeHtml(raw);
-
-    // 🔥 補這段
-    fallback = fallback.replace(/\{src:\[([^\]]+)\]\}/g, (_, raw) => {
-      const sids = raw.split(",").map((x) => x.trim());
+    const html = escapeHtml(raw).replace(/\{src:\[([^\]]+)\]\}/g, (_, ids) => {
       return `
-      <div class="source-list">
-        ${sids
-          .map(
-            (sid) => `
-          <span class="src-chip" data-sid="${sid}" onclick="openLawSid(this)">
-            ${sid}
-          </span>
-        `,
-          )
-          .join("")}
-      </div>
-    `;
+        <div class="sources-block">
+          <div class="sources-label">參考來源（點擊閱覽條文）</div>
+          <div class="source-list">
+            ${ids
+              .split(",")
+              .map((id) => {
+                const sid = id.trim();
+                return `
+                <div class="source-row" data-sid="${sid}" onclick="openLawSid(this)">
+                  <span class="source-num">${sid}</span>
+                  <span class="source-name">開啟來源</span>
+                  <span class="source-arrow">›</span>
+                </div>
+              `;
+              })
+              .join("")}
+          </div>
+        </div>
+      `;
     });
 
-    return `<p style="line-height:1.8;white-space:pre-wrap;">${fallback}</p>`;
+    return `<div style="line-height:1.8;white-space:pre-wrap;">${html}</div>`;
   }
   const topic = (
     pickSection(raw, "主題:", ["摘要:", "詳細說明:", "參考來源:"]) || ""
