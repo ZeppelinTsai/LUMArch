@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>建築法規諮詢 AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e; --paper: #f5f0e8; --accent: #c8522a;
+    --muted: #7a7060; --line: #d4c9b0;
+    --bubble-user: #1a1a2e; --sidebar: #ede8dc;
+    --sidebar-w: 260px;
+    --topbar-h: 57px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    height: 100dvh;        /* ← 改這裡 */
+    display: flex;
+    overflow: hidden;
+  }
+  /* ── Sidebar ── */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--sidebar);
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    padding: 24px 16px;
+    flex-shrink: 0;
+    transition: width .3s cubic-bezier(.4,0,.2,1), padding .3s cubic-bezier(.4,0,.2,1), transform .3s cubic-bezier(.4,0,.2,1);
+    overflow: hidden;
+    position: relative;
+    z-index: 100;
+  }
+  .sidebar.collapsed {
+    width: 0;
+    padding: 24px 0;
+    border-right-color: transparent;
+  }
+
+  /* Mobile: sidebar as overlay */
+  @media (max-width: 640px) {
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      transform: translateX(0);
+      width: var(--sidebar-w) !important;
+      padding: 24px 16px !important;
+      border-right: 1px solid var(--line) !important;
+      box-shadow: 4px 0 24px rgba(0,0,0,.12);
+    }
+    .sidebar.collapsed {
+      transform: translateX(calc(-1 * var(--sidebar-w)));
+    }
+    .sidebar-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.35);
+      z-index: 99;
+      display: none;
+    }
+    .sidebar-overlay.visible { display: block; }
+  }
+
+  /* Sidebar inner wrapper prevents content jumping during collapse */
+  .sidebar-inner {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: calc(var(--sidebar-w) - 32px);
+    overflow: hidden;
+  }
+
+  .logo { display:flex; align-items:center; gap:10px; margin-bottom:32px; padding-bottom:20px; border-bottom:1px solid var(--line); flex-shrink:0; }
+  .logo-icon { width:36px; height:36px; background:var(--accent); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+  .logo-text { font-family:'Noto Serif TC',serif; font-size:15px; font-weight:700; line-height:1.3; color:var(--ink); white-space:nowrap; }
+  .logo-sub  { font-size:11px; color:var(--muted); font-weight:300; white-space:nowrap; }
+  .new-chat-btn { background:var(--accent); color:white; border:none; border-radius:8px; padding:10px 16px; font-family:'Noto Sans TC',sans-serif; font-size:13px; cursor:pointer; display:flex; align-items:center; gap:8px; margin-bottom:24px; transition:opacity .2s; flex-shrink:0; white-space:nowrap; }
+  .new-chat-btn:hover { opacity:.85; }
+  .history-label { font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:10px; flex-shrink:0; white-space:nowrap; }
+
+  #historyList { flex:1; overflow-y:auto; }
+  #historyList::-webkit-scrollbar { width:3px; }
+  #historyList::-webkit-scrollbar-thumb { background:var(--line); border-radius:2px; }
+
+  .history-item { display:flex; align-items:center; gap:4px; padding:7px 8px; border-radius:6px; font-size:13px; color:var(--muted); cursor:pointer; transition:background .15s; margin-bottom:2px; }
+  .history-item:hover, .history-item.active { background:var(--line); color:var(--ink); }
+  .history-item-text { flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .history-del { display:none; align-items:center; justify-content:center; width:18px; height:18px; border-radius:4px; background:transparent; border:none; cursor:pointer; color:var(--muted); font-size:14px; flex-shrink:0; line-height:1; padding:0; transition:color .15s, background .15s; }
+  .history-item:hover .history-del { display:flex; }
+  .history-del:hover { color:var(--accent); background:rgba(200,82,42,.1); }
+  .sidebar-footer { margin-top:12px; font-size:11px; color:var(--muted); line-height:1.6; padding-top:16px; border-top:1px solid var(--line); flex-shrink:0; }
+
+  /* ── Main ── */
+  .main { flex:1; display:flex; flex-direction:column; overflow:hidden; min-width:0; }
+
+  /* ── Topbar ── */
+  .topbar {
+    height: var(--topbar-h);
+    padding: 0 20px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--paper);
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .topbar-left { display:flex; align-items:center; gap:10px; min-width:0; }
+  .topbar-title { font-family:'Noto Serif TC',serif; font-size:16px; font-weight:600; white-space:nowrap; }
+  .tag { font-size:11px; padding:3px 10px; border-radius:20px; border:1px solid var(--line); color:var(--muted); white-space:nowrap; }
+
+  /* Toggle button */
+  .toggle-btn {
+    width: 34px; height: 34px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    display: flex; align-items:center; justify-content:center;
+    flex-shrink: 0;
+    transition: background .15s, border-color .15s;
+    position: relative;
+  }
+  .toggle-btn:hover { background: var(--sidebar); border-color: var(--muted); }
+  .toggle-btn svg { width:16px; height:16px; fill:none; stroke:var(--ink); stroke-width:1.8; stroke-linecap:round; transition: transform .3s; }
+
+  /* ── Messages ── */
+  .messages { flex:1; overflow-y:auto; padding:32px 48px; display:flex; flex-direction:column; gap:24px; }
+  .messages::-webkit-scrollbar { width:4px; }
+  .messages::-webkit-scrollbar-thumb { background:var(--line); border-radius:2px; }
+
+  @media (max-width: 768px) {
+    .messages { padding: 20px 16px; }
+  }
+
+  /* Welcome screen */
+  .welcome { text-align:center; padding:48px 24px; max-width:520px; margin:0 auto; width:100%; }
+  .welcome-icon { font-size:48px; margin-bottom:16px; }
+  .welcome h1 { font-family:'Noto Serif TC',serif; font-size:26px; font-weight:700; margin-bottom:10px; }
+  .welcome p  { font-size:14px; color:var(--muted); line-height:1.7; margin-bottom:28px; }
+  .suggestions { display:grid; grid-template-columns:1fr 1fr; gap:10px; text-align:left; }
+  @media (max-width: 480px) {
+    .suggestions { grid-template-columns: 1fr; }
+    .welcome h1 { font-size:22px; }
+    .welcome { padding: 32px 16px; }
+  }
+  .suggestion-card { background:white; border:1px solid var(--line); border-radius:10px; padding:14px; cursor:pointer; transition:all .2s; font-size:13px; color:var(--ink); line-height:1.5; }
+  .suggestion-card:hover { border-color:var(--accent); box-shadow:0 2px 12px rgba(200,82,42,.1); }
+  .suggestion-icon { font-size:18px; margin-bottom:6px; display:block; }
+
+  /* Messages */
+  .message { display:flex; gap:14px; animation:fadeIn .3s ease; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+  .message.user { flex-direction:row-reverse; }
+  .avatar { width:34px; height:34px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; margin-top:2px; }
+  .avatar.ai      { background:var(--ink);   color:white; font-family:'Noto Serif TC',serif; font-size:13px; font-weight:700; }
+  .avatar.user-av { background:var(--accent); color:white; }
+  .bubble { max-width:68%; padding:14px 18px; border-radius:14px; font-size:14px; line-height:1.75; }
+  .message.ai   .bubble { background:white; border:1px solid var(--line); border-top-left-radius:4px; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+  .message.user .bubble { background:var(--bubble-user); color:white; border-top-right-radius:4px; }
+
+  @media (max-width: 640px) {
+    .bubble { max-width: calc(100% - 48px); }
+    .avatar { width:30px; height:30px; }
+  }
+
+  /* Message formatting */
+  .summary-block { background:#faf7f2; border-left:3px solid var(--accent); padding:12px 14px; border-radius:0 8px 8px 0; margin-bottom:14px; font-size:13px; }
+  .summary-block strong { display:block; font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--accent); margin-bottom:6px; }
+  .detail-item { display:flex; gap:8px; margin-bottom:8px; font-size:13.5px; }
+  .detail-num  { color:var(--accent); font-weight:600; flex-shrink:0; }
+  .sources-block { margin-top:16px; padding-top:14px; border-top:1px solid var(--line); }
+  .sources-label { font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:10px; }
+  .source-list { display:flex; flex-direction:column; gap:6px; }
+  .source-row { display:flex; align-items:flex-start; gap:8px; padding:8px 10px; border-radius:8px; background:#faf7f2; border:1px solid var(--line); cursor:pointer; transition:border-color .15s, background .15s; }
+  .source-row:hover { border-color:var(--accent); background:#fff7f4; }
+  .source-num { font-size:11px; font-weight:700; color:var(--accent); min-width:18px; flex-shrink:0; padding-top:1px; }
+  .source-name { font-size:12.5px; color:var(--ink); line-height:1.5; }
+  .source-arrow { font-size:11px; color:var(--muted); margin-left:auto; padding-top:2px; flex-shrink:0; transition:transform .15s; }
+  .source-row:hover .source-arrow { transform:translateX(2px); color:var(--accent); }
+
+  /* Inline citation superscript chips */
+  .src-chips { display:inline; }
+  .src-chip {
+    display: inline-flex; align-items:center; justify-content:center;
+    width:16px; height:16px;
+    border-radius:50%;
+    background: var(--accent);
+    color: white;
+    cursor: pointer;
+    user-select: none;
+    vertical-align: super;
+    line-height: 1;
+    margin-left: 2px;
+    transition: transform .1s, opacity .1s;
+    position: relative;
+    top: -2px;
+  }
+  .src-chip:hover { transform:scale(1.2); opacity:.85; }
+  .src-chip:active { transform:scale(.95); }
+
+  .typing { display:flex; gap:5px; padding:6px 0; }
+  .typing span { width:7px; height:7px; background:var(--muted); border-radius:50%; animation:bounce 1.2s infinite; }
+  .typing span:nth-child(2) { animation-delay:.2s; }
+  .typing span:nth-child(3) { animation-delay:.4s; }
+  @keyframes bounce { 0%,60%,100% { transform:translateY(0); } 30% { transform:translateY(-6px); } }
+
+  /* ── Input area ── */
+  .input-area { padding:16px 48px 20px; border-top:1px solid var(--line); background:var(--paper); flex-shrink:0; }
+  .input-wrapper { display:flex; align-items:flex-end; gap:10px; background:white; border:1.5px solid var(--line); border-radius:14px; padding:10px 14px; transition:border-color .2s; }
+  .input-wrapper:focus-within { border-color:var(--ink); }
+  #userInput { flex:1; border:none; outline:none; font-family:'Noto Sans TC',sans-serif; font-size:14px; color:var(--ink); background:transparent; resize:none; max-height:120px; line-height:1.6; }
+  #userInput::placeholder { color:#b0a89a; }
+  .send-btn { width:34px; height:34px; background:var(--ink); border:none; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:background .2s; }
+  .send-btn:hover { background:var(--accent); }
+  .send-btn:disabled { opacity:.4; cursor:not-allowed; }
+  .send-btn svg { width:16px; height:16px; fill:white; }
+  .disclaimer { text-align:center; font-size:11px; color:var(--muted); margin-top:8px; }
+
+  @media (max-width: 768px) {
+    .input-area { padding: 12px 16px 16px; }
+  }
+
+  /* ── Law Modal ── */
+  .law-modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.35); display:none; align-items:center; justify-content:center; z-index:1000000; padding: 16px; }
+  .law-modal{
+    width:min(680px, 100%);
+    max-height:min(80vh, 720px);
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:14px;
+    box-shadow:0 10px 40px rgba(0,0,0,.18);
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+  }
+  .law-modal-header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:#faf7f2; border-bottom:1px solid var(--line); }
+  .law-modal-title { font-family:'Noto Serif TC',serif; font-weight:700; font-size:14px; }
+  .law-modal-close { border:none; background:transparent; font-size:18px; cursor:pointer; color:var(--muted); padding: 4px 8px; border-radius:4px; }
+  .law-modal-close:hover { background: var(--line); }
+  .law-modal-body  { padding:14px 16px; overflow:auto; line-height:1.8; font-size:13.5px; white-space:pre-wrap; flex:1; }
+  .law-modal-footer { padding:10px 16px; border-top:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; background:#fff; flex-shrink:0; }
+  .law-modal-link   { font-size:12px; color:var(--accent); text-decoration:none; }
+  .law-modal-status { font-size:12px; color:var(--muted); }
+
+  /* ── Confirm dialog ── */
+  .confirm-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.25); display:none; align-items:center; justify-content:center; z-index:2000000; padding:16px; }
+  .confirm-box { background:white; border:1px solid var(--line); border-radius:12px; padding:24px 28px; width:min(320px,100%); box-shadow:0 8px 32px rgba(0,0,0,.15); text-align:center; }
+  .confirm-box p { font-size:14px; color:var(--ink); margin-bottom:20px; line-height:1.6; }
+  .confirm-actions { display:flex; gap:10px; justify-content:center; }
+  .confirm-cancel { padding:8px 22px; border-radius:8px; border:1px solid var(--line); background:white; color:var(--muted); font-size:13px; cursor:pointer; transition:background .15s; }
+  .confirm-cancel:hover { background:#f5f0e8; }
+  .confirm-ok { padding:8px 22px; border-radius:8px; border:none; background:var(--accent); color:white; font-size:13px; cursor:pointer; transition:opacity .15s; }
+  .confirm-ok:hover { opacity:.85; }
+</style>
+</head>
+<body>
+
+<!-- Mobile overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-inner">
+    <div class="logo">
+      <div class="logo-icon">🏛</div>
+      <div>
+       <div class="logo-text">LUMArch</div>
+        <div class="logo-sub">AI Building Regulation Assistant</div>
+      </div>
+    </div>
+    <button class="new-chat-btn" onclick="newChat()">✦ 新增討論串</button>
+    <div class="history-label">歷史紀錄</div>
+    <div id="historyList"></div>
+    <div class="sidebar-footer">
+      本系統依據台灣建築法、消防法、無障礙設施規範等提供諮詢參考。<br><br>
+      回答內容僅供參考，重要事項請洽主管機關確認。
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="toggle-btn" id="toggleBtn" onclick="toggleSidebar()" title="收合側邊欄">
+        <svg viewBox="0 0 20 20" id="toggleIcon">
+          <line x1="3" y1="5" x2="17" y2="5"/>
+          <line x1="3" y1="10" x2="17" y2="10"/>
+          <line x1="3" y1="15" x2="17" y2="15"/>
+        </svg>
+      </button>
+      <div class="topbar-title">建築法規諮詢</div>
+    </div>
+    <div class="tag">🇹🇼 台灣法規適用</div>
+  </div>
+  <div class="messages" id="messages">
+    <div class="welcome" id="welcome">
+      <div class="welcome-icon">🏗️</div>
+      <h1>建築法規 AI 諮詢</h1>
+      <p>您好！我能協助您查詢台灣建築法規相關問題，包括建造執照、使用執照、改建規範、消防安全、無障礙設施等。</p>
+      <div class="suggestions">
+        <div class="suggestion-card" onclick="askSuggestion(this)"><span class="suggestion-icon">🔨</span>改建需要申請哪些許可？</div>
+        <div class="suggestion-card" onclick="askSuggestion(this)"><span class="suggestion-icon">🚒</span>消防安全設備審查流程？</div>
+        <div class="suggestion-card" onclick="askSuggestion(this)"><span class="suggestion-icon">♿</span>無障礙設施的設置規定？</div>
+        <div class="suggestion-card" onclick="askSuggestion(this)"><span class="suggestion-icon">📋</span>使用執照申請需要哪些文件？</div>
+      </div>
+    </div>
+  </div>
+  <div class="input-area">
+    <div class="input-wrapper">
+      <textarea id="userInput" placeholder="輸入您的建築法規問題..." rows="1"
+        onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </div>
+    <div class="disclaimer">本系統提供法規輔助分析，非正式法律意見，實際應用請洽主管機關確認。</div>
+  </div>
+</div>
+
+<!-- Law Modal -->
+<div class="law-modal-backdrop" id="lawModalBackdrop" onclick="closeLawModal(event)">
+  <div class="law-modal" onclick="event.stopPropagation()">
+    <div class="law-modal-header">
+      <div class="law-modal-title" id="lawModalTitle">法條</div>
+      <button class="law-modal-close" onclick="closeLawModal()">✕</button>
+    </div>
+    <div class="law-modal-body" id="lawModalBody">載入中…</div>
+    <div class="law-modal-footer">
+      <a class="law-modal-link" id="lawModalLink" href="#" target="_blank" rel="noopener">開啟來源</a>
+      <div class="law-modal-status" id="lawModalStatus"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Delete Dialog -->
+<div class="confirm-backdrop" id="confirmBackdrop">
+  <div class="confirm-box">
+    <p id="confirmMsg">確定要刪除這筆對話紀錄嗎？</p>
+    <div class="confirm-actions">
+      <button class="confirm-cancel" onclick="confirmCancel()">取消</button>
+      <button class="confirm-ok"     onclick="confirmOk()">刪除</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE =
+  (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+    ? 'http://127.0.0.1:13169'
+    : location.origin; // 例如 https://riki-ai.com
+const LS_KEY   = 'arch_chat_sessions';
+const LS_SIDEBAR_KEY = 'arch_sidebar_state';
+
+// ── Sidebar toggle ────────────────────────────────────────────────────────────
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sidebarOverlay');
+let sidebarCollapsed = localStorage.getItem(LS_SIDEBAR_KEY) === 'collapsed';
+
+function isMobile() { return window.innerWidth <= 640; }
+
+function applyInitialSidebarState() {
+  if (isMobile()) {
+    // On mobile, always start closed
+    sidebar.classList.add('collapsed');
+  } else {
+    if (sidebarCollapsed) sidebar.classList.add('collapsed');
+  }
+}
+
+function toggleSidebar() {
+  if (isMobile()) {
+    const isOpen = !sidebar.classList.contains('collapsed');
+    if (isOpen) {
+      sidebar.classList.add('collapsed');
+      overlay.classList.remove('visible');
+    } else {
+      sidebar.classList.remove('collapsed');
+      overlay.classList.add('visible');
+    }
+  } else {
+    sidebarCollapsed = !sidebarCollapsed;
+    sidebar.classList.toggle('collapsed', sidebarCollapsed);
+    localStorage.setItem(LS_SIDEBAR_KEY, sidebarCollapsed ? 'collapsed' : 'open');
+  }
+}
+
+window.addEventListener('resize', () => {
+  if (!isMobile()) {
+    overlay.classList.remove('visible');
+    sidebar.classList.toggle('collapsed', sidebarCollapsed);
+  } else {
+    sidebar.classList.add('collapsed');
+    overlay.classList.remove('visible');
+  }
+});
+
+applyInitialSidebarState();
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let sessions         = [];
+let currentSessionId = null;
+let lastSourceBySid  = new Map();
+
+// ── LocalStorage ──────────────────────────────────────────────────────────────
+function saveSessions() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(sessions)); } catch(e) { console.warn('localStorage save failed', e); }
+}
+function loadSessions() {
+  try { const r = localStorage.getItem(LS_KEY); if (r) sessions = JSON.parse(r); }
+  catch(e) { sessions = []; }
+}
+function getSession(id)   { return sessions.find(s => s.id === id); }
+function deleteSession(id){ sessions = sessions.filter(s => s.id !== id); saveSessions(); }
+
+// ── Render history sidebar ────────────────────────────────────────────────────
+function renderHistoryList() {
+  const list = document.getElementById('historyList');
+  list.innerHTML = '';
+  const sorted = [...sessions].sort((a,b) => b.ts - a.ts);
+  sorted.forEach(sess => {
+    const item    = document.createElement('div');
+    item.className = 'history-item' + (sess.id === currentSessionId ? ' active' : '');
+
+    const textEl  = document.createElement('span');
+    textEl.className   = 'history-item-text';
+    textEl.textContent = sess.title || '（無標題）';
+    textEl.title       = sess.title || '';
+    textEl.onclick     = () => {
+      loadSessionUI(sess.id);
+      if (isMobile()) { sidebar.classList.add('collapsed'); overlay.classList.remove('visible'); }
+    };
+
+    const delBtn       = document.createElement('button');
+    delBtn.className   = 'history-del';
+    delBtn.innerHTML   = '✕';
+    delBtn.title       = '刪除此對話';
+    delBtn.onclick     = e => {
+      e.stopPropagation();
+      showConfirm(`確定要刪除「${sess.title}」？`, () => {
+        deleteSession(sess.id);
+        if (currentSessionId === sess.id) { currentSessionId = null; lastSourceBySid = new Map(); showWelcome(); }
+        renderHistoryList();
+      });
+    };
+
+    item.appendChild(textEl);
+    item.appendChild(delBtn);
+    list.appendChild(item);
+  });
+}
+
+// ── Load session into UI ──────────────────────────────────────────────────────
+function loadSessionUI(id) {
+  const sess = getSession(id);
+  if (!sess) return;
+  currentSessionId = id;
+  lastSourceBySid  = new Map(Object.entries(sess.sources || {}));
+  const msgs = document.getElementById('messages');
+  msgs.innerHTML = '';
+  sess.messages.forEach(m => addMessage(m.role === 'assistant' ? 'ai' : m.role, m.content));
+  renderHistoryList();
+}
+
+// ── newChat / welcome ─────────────────────────────────────────────────────────
+function newChat()    { currentSessionId = null; lastSourceBySid = new Map(); showWelcome(); renderHistoryList(); }
+function showWelcome(){ document.getElementById('messages').innerHTML = `
+  <div class="welcome" id="welcome">
+    <div class="welcome-icon">🏗️</div>
+    <h1>建築法規 AI 諮詢</h1>
+    <p>您好！我能協助您查詢台灣建築法規相關問題，包括建造執照、使用執照、改建規範、消防安全、無障礙設施等。</p>
+    <div class="suggestions">
+      <div class="suggestion-card" onclick="askSuggestion(this)"><span class="suggestion-icon">🔨</span>改建需要申請哪些許可？</div>
+      <div class="suggestion-card" onclick="askSuggestion(this)"><span class="suggestion-icon">🚒</span>消防安全設備審查流程？</div>
+      <div class="suggestion-card" onclick="askSuggestion(this)"><span class="suggestion-icon">♿</span>無障礙設施的設置規定？</div>
+      <div class="suggestion-card" onclick="askSuggestion(this)"><span class="suggestion-icon">📋</span>使用執照申請需要哪些文件？</div>
+    </div>
+  </div>`; }
+function hideWelcome(){ const w = document.getElementById('welcome'); if (w) w.remove(); }
+
+// ── Confirm dialog ────────────────────────────────────────────────────────────
+let _cb = null;
+function showConfirm(msg, cb) { document.getElementById('confirmMsg').textContent = msg; document.getElementById('confirmBackdrop').style.display = 'flex'; _cb = cb; }
+function confirmOk()     { document.getElementById('confirmBackdrop').style.display = 'none'; _cb?.(); _cb = null; }
+function confirmCancel() { document.getElementById('confirmBackdrop').style.display = 'none'; _cb = null; }
+
+// ── addMessage ────────────────────────────────────────────────────────────────
+function addMessage(role, content, isTyping = false) {
+  const msgs = document.getElementById('messages');
+  const div  = document.createElement('div');
+  div.className = `message ${role}`;
+  const av  = document.createElement('div');
+  av.className  = `avatar ${role === 'ai' ? 'ai' : 'user-av'}`;
+  av.textContent = role === 'ai' ? '法' : '您';
+  const bbl = document.createElement('div');
+  bbl.className = 'bubble';
+  if (isTyping) { bbl.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>'; div.id = 'typing-indicator'; }
+  else          { bbl.innerHTML = formatMessage(content); }
+  div.appendChild(av); div.appendChild(bbl);
+  msgs.appendChild(div); msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+// ── sendMessage ───────────────────────────────────────────────────────────────
+async function sendMessage() {
+  const input   = document.getElementById('userInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const text    = input.value.trim();
+  if (!text) return;
+  hideWelcome();
+  input.value = ''; input.style.height = 'auto'; sendBtn.disabled = true;
+
+  if (!currentSessionId) {
+    const id = 'sess_' + Date.now();
+    sessions.push({ id, title: text.length > 22 ? text.slice(0,22)+'…' : text, messages: [], sources: {}, ts: Date.now() });
+    currentSessionId = id;
+    saveSessions(); renderHistoryList();
+  }
+
+  const sess = getSession(currentSessionId);
+  sess.messages.push({ role:'user', content:text }); sess.ts = Date.now(); saveSessions();
+  addMessage('user', text);
+  const typingEl = addMessage('ai', '', true);
+
+  try {
+    const res  = await fetch(`${API_BASE}/api/chat`, {
+      method: 'POST', headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify({ query:text, cand_topk:50, max_src_tokens:3500, max_each_tokens:700 })
+    });
+    const data = await res.json();
+    typingEl.remove();
+    if (!res.ok) { addMessage('ai', `⚠️ ${data.detail||'伺服器錯誤'}`); return; }
+
+    const aiText = data.answer || '抱歉，無法取得回應。';
+    const srcMap = {};
+    (data.provided_sources||[]).forEach(s => { srcMap[s.sid] = s; });
+    Object.assign(sess.sources, srcMap);
+    lastSourceBySid = new Map(Object.entries(sess.sources));
+    sess.messages.push({ role:'assistant', content:aiText }); sess.ts = Date.now(); saveSessions();
+    addMessage('ai', aiText); renderHistoryList();
+  } catch(err) {
+    typingEl.remove(); addMessage('ai', '⚠️ 連線錯誤，請確認伺服器是否已啟動。');
+  } finally { sendBtn.disabled = false; }
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function askSuggestion(el) { document.getElementById('userInput').value = el.innerText.trim(); sendMessage(); }
+function autoResize(el)    { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight,120)+'px'; }
+function handleKey(e)      { if (e.key==='Enter'&&!e.shiftKey) { e.preventDefault(); sendMessage(); } }
+function escapeHtml(s) { return (s??'').replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
+function zhNumToInt(zh) {
+  // 支援：十、十一、二十、二十一、一百零一、三百二十…（夠用版）
+  if (!zh) return null;
+  zh = zh.replace(/\s+/g, '');
+
+  const map = { '零':0,'〇':0,'一':1,'二':2,'兩':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9 };
+  let total = 0;
+  let section = 0; // 個十百千的累積
+  let number = 0;
+
+  const pushNumber = () => { section += number; number = 0; };
+
+  for (let i=0;i<zh.length;i++) {
+    const ch = zh[i];
+    if (ch in map) {
+      number = map[ch];
+      continue;
+    }
+    if (ch === '十') { section += (number || 1) * 10; number = 0; continue; }
+    if (ch === '百') { section += (number || 1) * 100; number = 0; continue; }
+    if (ch === '千') { section += (number || 1) * 1000; number = 0; continue; }
+    // 先不處理 萬/億（法條幾乎用不到）
+  }
+  pushNumber();
+  total += section;
+  return total || null;
+}
+function pickSection(text, startKey, endKeys=[]) {
+  const s = (text||'').replace(/\r\n/g,'\n'); const start = s.indexOf(startKey);
+  if (start===-1) return null; const from = start+startKey.length; let to = s.length;
+  for (const k of endKeys) { const i=s.indexOf(k,from); if (i!==-1&&i<to) to=i; }
+  return s.slice(from,to).trim();
+}
+function parseItemLine(line) {
+  const mNum = line.match(/^\s*(\d+)\.\s*(.*)$/); const content=(mNum?mNum[2]:line).trim();
+  const mSrc = content.match(/\{src:\s*\[([^\]]*)\]\s*\}+\s*$/);
+  if (!mSrc) return {text:content,src:[]};
+  const src = mSrc[1].trim().split(',').map(x=>x.trim()).filter(Boolean);
+  return {text:content.replace(/\{src:\s*\[[^\]]*\]\s*\}+\s*$/,'').trim(), src};
+}
+function parseNumberedItems(block) { if(!block)return[]; return block.split('\n').map(l=>l.trim()).filter(Boolean).map(parseItemLine); }
+function parseSourceMap(block) {
+  const map=new Map(); if(!block) return map;
+  for (const ln of block.split('\n').map(l=>l.trim()).filter(Boolean)) { const m=ln.match(/^\[(S\d+)\]\s*(.+)$/); if(m) map.set(m[1],m[2]); }
+  return map;
+}
+// Build sid → display index (1-based) from ordered source map
+function buildSidIndexMap(sourceMap) {
+  const m = new Map();
+  let i = 1;
+  for (const [sid] of sourceMap) { m.set(sid, i++); }
+  return m;
+}
+// Circled numbers for superscript chips (①②… fallback to plain number)
+const CIRCLED = ['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪','⑫','⑬','⑭','⑮'];
+function circled(n) { return n >= 1 && n <= CIRCLED.length ? CIRCLED[n-1] : String(n); }
+
+function renderItemWithChips(item, sourceMap, sidIndexMap) {
+  const chips = (item.src||[]).filter(id=>sourceMap.has(id)).map(id => {
+    const idx = sidIndexMap.get(id) || '?';
+    const label = circled(idx);
+    const title = escapeHtml(sourceMap.get(id)||id);
+    return `<span class="src-chip" data-sid="${escapeHtml(id)}" title="${title}" onclick="openLawSid(this)">${label}</span>`;
+  }).join('');
+  return `${escapeHtml(item.text)}${chips?`<span class="src-chips">${chips}</span>`:''}`;
+}
+function formatMessage(text) {
+  const raw=(text||'').trim(); if(!raw) return '';
+  const ok=raw.includes('主題:')&&raw.includes('摘要:')&&raw.includes('詳細說明:')&&raw.includes('參考來源:');
+  if(!ok) return `<p style="line-height:1.8;white-space:pre-wrap;">${escapeHtml(raw)}</p>`;
+  const topic=        (pickSection(raw,'主題:',    ['摘要:','詳細說明:','參考來源:'])||'').trim();
+  const summaryBlock=  pickSection(raw,'摘要:',     ['詳細說明:','參考來源:']);
+  const detailBlock=   pickSection(raw,'詳細說明:', ['參考來源:']);
+  const refsBlock=     pickSection(raw,'參考來源:', []);
+  const summaryItems=parseNumberedItems(summaryBlock);
+  const detailItems =parseNumberedItems(detailBlock);
+  const sourceMap   =parseSourceMap(refsBlock);
+  const sidIndexMap =buildSidIndexMap(sourceMap);
+  let html='';
+  if(topic) html+=`<div style="margin-bottom:10px;"><div style="font-family:'Noto Serif TC',serif;font-weight:800;font-size:16px;line-height:1.4;">${escapeHtml(topic)}</div></div>`;
+  if(summaryItems.length) html+=`<div class="summary-block"><strong>摘要</strong>${summaryItems.map((it,i)=>`<div class="detail-item"><span class="detail-num">${i+1}.</span><span>${renderItemWithChips(it,sourceMap,sidIndexMap)}</span></div>`).join('')}</div>`;
+  if(detailItems.length)  html+=`<div><strong style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">詳細說明</strong><div style="margin-top:10px">${detailItems.map((it,i)=>`<div class="detail-item"><span class="detail-num">${i+1}.</span><span>${renderItemWithChips(it,sourceMap,sidIndexMap)}</span></div>`).join('')}</div></div>`;
+  const refs=[...sourceMap.entries()];
+  if(refs.length) {
+    const rows = refs.map(([sid, ref], i) =>
+      `<div class="source-row" data-sid="${escapeHtml(sid)}" onclick="openLawSid(this)">
+        <span class="source-num">${circled(i+1)}</span>
+        <span class="source-name">${escapeHtml(ref)}</span>
+        <span class="source-arrow">›</span>
+      </div>`).join('');
+    html+=`<div class="sources-block"><div class="sources-label">參考來源（點擊閱覽條文）</div><div class="source-list">${rows}</div></div>`;
+  }
+  return html||`<p style="line-height:1.8;white-space:pre-wrap;">${escapeHtml(raw)}</p>`;
+}
+
+// ── Law modal ─────────────────────────────────────────────────────────────────
+async function openLawSid(el) {
+  const sid = el.getAttribute('data-sid');
+  const s   = lastSourceBySid.get(sid);
+
+  const title = s?.loc_str || sid;
+  const body  = s?.text || '（此來源在本次檢索中未回傳內容）';
+  const url   = (s?.source_url || '').trim();
+
+  showLawModal(title);
+
+  // fallback_hint：也可以塞 s?.law_name 或你 sourceMap 的 ref 字串（如果你有存）
+  renderLawModal({
+    title,
+    body,
+    source_url: url,
+    fallback_hint: title, // 暴力：先用 title 猜
+  });
+}
+function showLawModal(title) {
+  document.getElementById('lawModalTitle').textContent = title||'法條';
+  document.getElementById('lawModalBody').textContent  ='載入中…';
+  document.getElementById('lawModalStatus').textContent='查詢中…';
+  const l=document.getElementById('lawModalLink'); l.style.display='none'; l.href='#';
+  document.getElementById('lawModalBackdrop').style.display='flex';
+}
+function guessLawFromText(text) {
+  const t = (text || "").trim();
+  if (!t) return null;
+
+  const sorted = [...LAW_FALLBACKS].sort((a,b) => b.key.length - a.key.length);
+  for (const item of sorted) {
+    if (t.includes(item.key)) return item;
+  }
+
+  if (t.includes("建築技術規則")) {
+    return LAW_FALLBACKS.find(x => x.pcode === "D0070115") || null;
+  }
+  return null;
+}
+function extractArticleNo(text) {
+  if (!text) return "";
+
+  // 先抓阿拉伯數字：第 12-1 條
+  let m = text.match(/第\s*(\d+(?:-\d+)?)\s*條/);
+  if (m) return m[1];
+
+  // 再抓中文數字：第十二條 / 第三百二十條
+  let mZh = text.match(/第\s*([零〇一二兩三四五六七八九十百千]+)\s*條/);
+  if (mZh) {
+    const num = zhNumToInt(mZh[1]);
+    return num ? String(num) : "";
+  }
+
+  // 抓「條之X」：第十二條之一
+  let mExt = text.match(/第\s*(\d+)\s*條\s*之\s*(\d+)/);
+  if (mExt) return `${mExt[1]}-${mExt[2]}`;
+
+  return "";
+}
+function buildMojUrlFromHint(hintText) {
+  const law = guessLawFromText(hintText);
+  if (!law) return "";
+
+  const flno = extractArticleNo(hintText);
+
+  // 有條號 → LawSingle
+  if (flno) {
+    return `https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=${encodeURIComponent(law.pcode)}&flno=${encodeURIComponent(flno)}`;
+  }
+
+  // 沒條號 → LawAll
+  return law.url;
+}
+function renderLawModal({title,body,source_url, fallback_hint}) {
+  document.getElementById('lawModalTitle').textContent = title || '法條';
+  document.getElementById('lawModalBody').textContent  = body  || '';
+  document.getElementById('lawModalStatus').textContent = '';
+
+  const l = document.getElementById('lawModalLink');
+
+  // 1) 後端有給 source_url：直接用（最準）
+  let url = (source_url || "").trim();
+
+  // 2) 沒給：用 title / hint 去組 MOJ LawSingle / LawAll
+  if (!url) {
+    url = buildMojUrlFromHint(title) || buildMojUrlFromHint(fallback_hint);
+  }
+
+  // 3) 再不行：導到 MOJ 首頁
+  if (!url) url = "https://law.moj.gov.tw/";
+
+  l.style.display = 'inline-block';
+  l.href = url;
+  l.textContent = '開啟來源';
+}
+function closeLawModal(e) { if(!e||e.target===document.getElementById('lawModalBackdrop')) document.getElementById('lawModalBackdrop').style.display='none'; }
+// ── Brutal law list fallback (MOJ LawAll) ────────────────────────────────────
+const LAW_FALLBACKS = [
+  { key: "建築法", pcode: "D0070109", url: "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0070109" },
+  { key: "建築技術規則｜建築設計施工編", pcode: "D0070115", url: "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0070115" },
+  { key: "建築技術規則｜建築構造編",     pcode: "D0070116", url: "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0070116" },
+  { key: "建築技術規則｜建築設備編",     pcode: "D0070117", url: "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0070117" },
+  { key: "建築師法", pcode: "D0070112", url: "https://law.moj.gov.tw/LawClass/LawAll.aspx?PCode=D0070112" },
+  { key: "公寓大廈管理條例", pcode: "D0070118", url: "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0070118" },
+  { key: "消防法", pcode: "D0120001", url: "https://law.moj.gov.tw/LawClass/LawAll.aspx?PCode=D0120001" },
+];
+
+// 用 loc_str / ref 文字去猜是哪部法（超暴力：包含關鍵字就算）
+function guessLawUrlFromText(text) {
+  const t = (text || "").trim();
+  if (!t) return "";
+
+  // 優先長的 key，避免「建築技術規則」被「建築法」先吃掉
+  const sorted = [...LAW_FALLBACKS].sort((a,b) => b.key.length - a.key.length);
+
+  for (const item of sorted) {
+    if (t.includes(item.key)) return item.url;
+  }
+
+  // 更暴力的二階段：只要出現「建築技術規則」但沒分編，就先導到設計施工編
+  if (t.includes("建築技術規則")) {
+    return "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0070115";
+  }
+
+  return "";
+}
+// ── Init ──────────────────────────────────────────────────────────────────────
+loadSessions(); renderHistoryList();
+</script>
+</body>
+</html>
