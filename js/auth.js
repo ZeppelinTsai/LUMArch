@@ -86,7 +86,7 @@ function renderAuthState() {
     emailEl.textContent = user.email;
     planEl.textContent = user.plan || "free";
   } else {
-    guestEl.style.display = "flex";
+    guestEl.style.display = "block";
     userEl.style.display = "none";
   }
 }
@@ -186,6 +186,7 @@ async function verifyCode() {
 
   const modalEl = document.getElementById("loginModal");
   bootstrap.Modal.getInstance(modalEl)?.hide();
+  renderAuthState();
 }
 
 function getToken() {

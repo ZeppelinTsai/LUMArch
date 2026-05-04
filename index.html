@@ -62,9 +62,22 @@
         <div class="topbar-actions">
           <div class="tag">🇹🇼 台灣法規適用</div>
 
-          <button class="btn btn-dark btn-sm" onclick="openLoginModal()">
-            登入
-          </button>
+          <div id="authGuest">
+            <button class="btn btn-dark btn-sm" onclick="openLoginModal()">
+              登入
+            </button>
+          </div>
+
+          <div id="authUser" class="auth-user" style="display: none">
+            <span id="userEmail"></span>
+            <span id="userPlan" class="badge bg-primary"></span>
+            <button
+              class="btn btn-outline-secondary btn-sm"
+              onclick="handleLogout()"
+            >
+              登出
+            </button>
+          </div>
         </div>
       </div>
       <div class="messages" id="messages">
