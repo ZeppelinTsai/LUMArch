@@ -159,8 +159,29 @@ function formatMessage(text) {
     raw.includes("摘要:") &&
     raw.includes("詳細說明:") &&
     raw.includes("參考來源:");
-  if (!ok)
-    return `<p style="line-height:1.8;white-space:pre-wrap;">${escapeHtml(raw)}</p>`;
+  if (!ok) {
+    let fallback = escapeHtml(raw);
+
+    // 🔥 補這段
+    fallback = fallback.replace(/\{src:\[([^\]]+)\]\}/g, (_, raw) => {
+      const sids = raw.split(",").map((x) => x.trim());
+      return `
+      <div class="source-list">
+        ${sids
+          .map(
+            (sid) => `
+          <span class="src-chip" data-sid="${sid}" onclick="openLawSid(this)">
+            ${sid}
+          </span>
+        `,
+          )
+          .join("")}
+      </div>
+    `;
+    });
+
+    return `<p style="line-height:1.8;white-space:pre-wrap;">${fallback}</p>`;
+  }
   const topic = (
     pickSection(raw, "主題:", ["摘要:", "詳細說明:", "參考來源:"]) || ""
   ).trim();

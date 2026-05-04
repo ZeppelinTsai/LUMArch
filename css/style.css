@@ -889,26 +889,7 @@ body {
   font-weight: 600;
   white-space: nowrap;
 }
-.source-list {
-  margin-top: 10px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
 
-.source-chip {
-  border: 1px solid #ddd;
-  border-radius: 999px;
-  padding: 6px 10px;
-  background: #fff7f2;
-  color: #b7441f;
-  cursor: pointer;
-  font-size: 13px;
-}
-
-.source-chip:hover {
-  background: #ffe6d8;
-}
 @media (max-width: 600px) {
   .pricing-note {
     font-size: 12px;
