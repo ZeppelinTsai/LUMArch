@@ -169,10 +169,20 @@ function formatMessage(text) {
               .split(",")
               .map((id) => {
                 const sid = id.trim();
+                const src = lastSourceBySid?.get(sid);
+
+                const name =
+                  src?.loc_str ||
+                  src?.law_name ||
+                  src?.title ||
+                  src?.source_title ||
+                  src?.name ||
+                  sid;
+
                 return `
                 <div class="source-row" data-sid="${sid}" onclick="openLawSid(this)">
                   <span class="source-num">${sid}</span>
-                  <span class="source-name">開啟來源</span>
+                  <span class="source-name">${escapeHtml(name)}</span>
                   <span class="source-arrow">›</span>
                 </div>
               `;
