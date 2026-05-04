@@ -889,7 +889,26 @@ body {
   font-weight: 600;
   white-space: nowrap;
 }
+.plain-answer {
+  line-height: 1.8;
+  margin-bottom: 14px;
+}
 
+.sources-block.compact {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.sources-block.compact .sources-label {
+  margin-bottom: 10px;
+}
+
+.sources-block.compact .source-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
 @media (max-width: 600px) {
   .pricing-note {
     font-size: 12px;

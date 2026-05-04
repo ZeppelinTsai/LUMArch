@@ -160,42 +160,51 @@ function formatMessage(text) {
     raw.includes("詳細說明:") &&
     raw.includes("參考來源:");
   if (!ok) {
-    const html = escapeHtml(raw).replace(/\{src:\[([^\]]+)\]\}/g, (_, ids) => {
-      return `
-        <div class="sources-block">
-          <div class="sources-label">參考來源（點擊閱覽條文）</div>
-          <div class="source-list">
-            ${ids
-              .split(",")
-              .map((id) => {
-                const sid = id.trim();
-                const src = lastSourceBySid?.get(sid);
+  let body = raw.replace(/\n*\s*參考來源\s*\{src:\[[^\]]+\]\}\s*/g, "");
+  body = body.replace(/\n*\s*參考來源\s*$/g, "");
 
-                const name =
-                  src?.loc_str ||
-                  src?.law_name ||
-                  src?.title ||
-                  src?.source_title ||
-                  src?.name ||
-                  sid;
+  const srcMatch = raw.match(/\{src:\[([^\]]+)\]\}/);
 
-                return `
-                <div class="source-row" data-sid="${sid}" onclick="openLawSid(this)">
-                  <span class="source-num">${sid}</span>
-                  <span class="source-name">${escapeHtml(name)}</span>
-                  <span class="source-arrow">›</span>
-                </div>
-              `;
-              })
-              .join("")}
-          </div>
+  let html = `
+    <div class="plain-answer">
+      ${escapeHtml(body).replace(/\n/g, "<br>")}
+    </div>
+  `;
+
+  if (srcMatch) {
+    const ids = srcMatch[1];
+
+    html += `
+      <div class="sources-block compact">
+        <div class="sources-label">參考來源（點擊閱覽條文）</div>
+        <div class="source-list">
+          ${ids.split(",").map(id => {
+            const sid = id.trim();
+            const src = lastSourceBySid?.get(sid);
+
+            const name =
+              src?.loc_str ||
+              src?.law_name ||
+              src?.title ||
+              src?.source_title ||
+              src?.name ||
+              sid;
+
+            return `
+              <div class="source-row" data-sid="${sid}" onclick="openLawSid(this)">
+                <span class="source-num">${sid}</span>
+                <span class="source-name">${escapeHtml(name)}</span>
+                <span class="source-arrow">›</span>
+              </div>
+            `;
+          }).join("")}
         </div>
-      `;
-    });
-
-    return `<div style="line-height:1.8;white-space:pre-wrap;">${html}</div>`;
+      </div>
+    `;
   }
-  const topic = (
+
+  return html;
+}= (
     pickSection(raw, "主題:", ["摘要:", "詳細說明:", "參考來源:"]) || ""
   ).trim();
   const summaryBlock = pickSection(raw, "摘要:", ["詳細說明:", "參考來源:"]);
