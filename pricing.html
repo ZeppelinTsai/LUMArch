@@ -4,49 +4,84 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>LUMArch Pro</title>
+
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+
+    <style>
+      .hero {
+        max-width: 700px;
+        margin: auto;
+      }
+      .price {
+        font-size: 2.5rem;
+        font-weight: bold;
+      }
+    </style>
   </head>
 
   <body class="bg-light">
     <div class="container py-5">
-      <div class="text-center mb-5">
-        <h1>LUMArch</h1>
+      <!-- HERO -->
+      <div class="text-center hero mb-5">
+        <h1 class="fw-bold">LUMArch</h1>
         <p class="text-muted">AI 建築法規查詢工具</p>
+
+        <h4 class="mt-4">讓你不用再翻法規</h4>
+
+        <p class="text-muted">秒級找到條文 + 自動整理重點 + 附來源引用</p>
       </div>
 
+      <!-- PRICING CARD -->
       <div class="card shadow-sm">
         <div class="card-body text-center">
-          <h3 class="mb-3">LUMArch Pro</h3>
+          <h3 class="mb-2">LUMArch Pro</h3>
 
-          <h2 class="text-danger mb-4">NT$99 / 月</h2>
+          <div class="price text-danger mb-3">NT$99 / 月</div>
 
-          <ul class="list-unstyled mb-4">
-            <li>✔ 大幅提高查詢次數（每月 300,000 tokens</li>
-            <li>✔ 條文來源引用</li>
-            <li>✔ 節省查法規時間</li>
+          <p class="text-muted mb-4">
+            適合需要頻繁查詢建築法規的工程師、設計師與顧問
+          </p>
+
+          <ul
+            class="list-unstyled mb-4 text-start mx-auto"
+            style="max-width: 320px"
+          >
+            <li>✔ 每月 300,000 tokens（高查詢額度）</li>
+            <li>✔ 條文來源引用（避免 AI 幻覺）</li>
+            <li>✔ 秒級查詢，節省查法規時間</li>
+            <li>✔ 支援建築 / 消防 / 無障礙法規</li>
           </ul>
 
-          <button class="btn btn-dark btn-lg" onclick="goUpgrade()">
+          <button class="btn btn-dark btn-lg w-100" onclick="goUpgrade()">
             立即升級
           </button>
 
-          <p class="text-muted mt-3 small">
-            金流服務申請中，開通後即可線上付款
-          </p>
+          <p class="text-muted mt-3 small">金流申請中，開通後可線上付款</p>
         </div>
       </div>
 
+      <!-- TRUST / FREE -->
+      <div class="mt-5 text-center">
+        <p class="text-muted">免費試用：3 次查詢</p>
+      </div>
+
+      <!-- DESCRIPTION -->
       <div class="mt-5">
         <h5>服務說明</h5>
         <p class="text-muted">
-          LUMArch 為線上 AI 法規查詢工具，協助使用者快速整理建築法規內容，
-          並提供條文摘要與來源引用。
+          LUMArch 為 AI 法規查詢工具，協助快速整理建築技術規則、
+          消防法與無障礙規範，並提供條文來源引用，提升查詢效率。
+        </p>
+
+        <p class="text-muted small">
+          本系統依台灣建築法、消防法及無障礙規範提供參考，實際適用請以主管機關認定為準。
         </p>
       </div>
 
+      <!-- CONTACT -->
       <div class="mt-4">
         <h5>聯絡方式</h5>
         <p class="text-muted">📧 luxandpei@gmail.com</p>
@@ -55,7 +90,8 @@
 
     <script>
       function goUpgrade() {
-        window.location.href = "/";
+        // 之後接金流
+        alert("金流開通後即可付款");
       }
     </script>
   </body>
