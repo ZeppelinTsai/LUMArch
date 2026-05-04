@@ -66,6 +66,7 @@ async function sendMessage() {
           confirmButtonText: "升級 Pro",
           cancelButtonText: "稍後再說",
           confirmButtonColor: "#d6522c",
+          scrollbarPadding: false, // ⭐ 重點
         }).then((result) => {
           if (result.isConfirmed) {
             openUpgradeModal();

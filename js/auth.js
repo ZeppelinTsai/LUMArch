@@ -199,5 +199,6 @@ function startUpgrade() {
     title: "金流申請中",
     text: "LUMArch Pro 即將開放線上付款。",
     confirmButtonText: "知道了",
+    scrollbarPadding: false, // ⭐ 重點：避免升級後頁面跳動
   });
 }
