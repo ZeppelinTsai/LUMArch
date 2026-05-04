@@ -1,40 +1,12 @@
-async function login(email) {
-  const res = await fetch(`${API_BASE}/api/auth/email`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email }),
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    alert("登入失敗");
-    return;
-  }
-
-  localStorage.setItem(TOKEN_KEY, data.token);
-  return data.user;
-}
-
-function getToken() {
-  return localStorage.getItem(TOKEN_KEY);
-}
-
-function logout() {
-  localStorage.removeItem(TOKEN_KEY);
-  location.reload();
-}
-
-async function handleEmailLogin() {
-  const input = document.getElementById("emailInput");
-  const email = input.value.trim();
+async function requestCode() {
+  const email = document.getElementById("loginEmail").value.trim();
 
   if (!email) {
-    alert("請輸入 Email");
+    Swal.fire("請輸入 Email");
     return;
   }
 
-  const res = await fetch(`${API_BASE}/api/auth/email`, {
+  const res = await fetch(`${API_BASE}/api/auth/request-code`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email }),
@@ -43,7 +15,38 @@ async function handleEmailLogin() {
   const data = await res.json();
 
   if (!res.ok) {
-    alert(data.detail || "登入失敗");
+    Swal.fire("發送失敗", data.detail || "請稍後再試", "error");
+    return;
+  }
+
+  document.getElementById("codeArea").style.display = "block";
+
+  Swal.fire(
+    "驗證碼已建立",
+    data.dev_code ? `開發測試碼：${data.dev_code}` : "請查看信箱",
+    "success",
+  );
+}
+
+async function verifyCode() {
+  const email = document.getElementById("loginEmail").value.trim();
+  const code = document.getElementById("loginCode").value.trim();
+
+  if (!email || !code) {
+    Swal.fire("請輸入 Email 與驗證碼");
+    return;
+  }
+
+  const res = await fetch(`${API_BASE}/api/auth/verify-code`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, code }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    Swal.fire("登入失敗", data.detail || "驗證碼錯誤", "error");
     return;
   }
 
@@ -51,6 +54,11 @@ async function handleEmailLogin() {
   localStorage.setItem("lumarch_user", JSON.stringify(data.user));
 
   renderAuthState();
+
+  Swal.fire("登入成功", data.user.email, "success");
+
+  const modalEl = document.getElementById("loginModal");
+  bootstrap.Modal.getInstance(modalEl)?.hide();
 }
 
 function getToken() {
@@ -73,20 +81,5 @@ function handleLogout() {
 
 function renderAuthState() {
   const user = getUser();
-  const guestEl = document.getElementById("authGuest");
-  const userEl = document.getElementById("authUser");
-  const emailEl = document.getElementById("userEmail");
-  const planEl = document.getElementById("userPlan");
-
-  if (!guestEl || !userEl) return;
-
-  if (user) {
-    guestEl.style.display = "none";
-    userEl.style.display = "flex";
-    emailEl.textContent = user.email;
-    planEl.textContent = user.plan || "free";
-  } else {
-    guestEl.style.display = "flex";
-    userEl.style.display = "none";
-  }
+  // 你還沒做 topbar user 區也沒關係，先不爆
 }
