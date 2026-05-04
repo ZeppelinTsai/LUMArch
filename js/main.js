@@ -43,9 +43,9 @@ async function sendMessage() {
       },
       body: JSON.stringify({
         query: text,
-        cand_topk: 50,
-        max_src_tokens: 3500,
-        max_each_tokens: 700,
+        cand_topk: 10,
+        max_src_tokens: 1800,
+        max_each_tokens: 500,
       }),
     });
     const data = await res.json();
