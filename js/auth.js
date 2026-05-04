@@ -51,7 +51,6 @@ async function handleEmailLogin() {
   localStorage.setItem("lumarch_user", JSON.stringify(data.user));
 
   renderAuthState();
-  updatePricingVisibility(user);
 }
 
 function getToken() {
@@ -78,6 +77,8 @@ function renderAuthState() {
   const userEl = document.getElementById("authUser");
   const emailEl = document.getElementById("userEmail");
   const planEl = document.getElementById("userPlan");
+
+  updatePricingVisibility(user);
 
   if (!guestEl || !userEl) return;
 
