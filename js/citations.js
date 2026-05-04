@@ -217,6 +217,11 @@ function formatMessage(text) {
   const summaryItems = parseNumberedItems(summaryBlock);
   const detailItems = parseNumberedItems(detailBlock);
   const sourceMap = parseSourceMap(refsBlock);
+
+  // 用後端 provided_sources 覆蓋 AI 回答裡的 placeholder
+  for (const [sid, ref] of sourceMap.entries()) {
+    sourceMap.set(sid, getSourceDisplayName(sid, ref));
+  }
   const sidIndexMap = buildSidIndexMap(sourceMap);
   let html = "";
   if (topic)
@@ -244,7 +249,24 @@ function formatMessage(text) {
     `<div style="line-height:1.8;">${escapeHtml(raw).replace(/\n/g, "<br>")}</div>`
   );
 }
+function getSourceDisplayName(sid, fallback = "") {
+  const src = lastSourceBySid?.get(sid);
 
+  const name =
+    src?.loc_str ||
+    src?.law_name ||
+    src?.title ||
+    src?.source_title ||
+    src?.name ||
+    fallback ||
+    sid;
+
+  if (!name || name.includes("<來源定位字串>")) {
+    return sid;
+  }
+
+  return name;
+}
 // ── Law modal ─────────────────────────────────────────────────────────────────
 async function openLawSid(el) {
   const sid = el.getAttribute("data-sid");
