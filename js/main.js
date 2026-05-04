@@ -51,6 +51,11 @@ async function sendMessage() {
     const data = await res.json();
     typingEl.remove();
     if (!res.ok) {
+      if (res.status === 403) {
+        typingEl.remove();
+        Swal.fire("試用次數已用完", "請升級 Pro 繼續使用", "warning");
+        return;
+      }
       addMessage("ai", `⚠️ ${data.detail || "伺服器錯誤"}`);
       return;
     }
