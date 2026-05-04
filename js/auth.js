@@ -188,26 +188,3 @@ async function verifyCode() {
   bootstrap.Modal.getInstance(modalEl)?.hide();
   renderAuthState();
 }
-
-function getToken() {
-  return localStorage.getItem(TOKEN_KEY);
-}
-
-function getUser() {
-  try {
-    return JSON.parse(localStorage.getItem("lumarch_user") || "null");
-  } catch {
-    return null;
-  }
-}
-
-function handleLogout() {
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem("lumarch_user");
-  renderAuthState();
-}
-
-function renderAuthState() {
-  const user = getUser();
-  // 你還沒做 topbar user 區也沒關係，先不爆
-}
