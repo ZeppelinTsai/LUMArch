@@ -220,3 +220,56 @@ function updatePricingVisibility(user) {
     el.style.display = "flex";
   }
 }
+async function refreshUser() {
+  const token = getToken();
+  if (!token) return null;
+
+  const res = await fetch(`${API_BASE}/api/auth/me`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) return null;
+
+  const data = await res.json();
+
+  localStorage.setItem("lumarch_user", JSON.stringify(data.user));
+  renderAuthState();
+
+  return data.user;
+}
+
+async function handlePaymentReturn() {
+  const params = new URLSearchParams(window.location.search);
+  const payment = params.get("payment");
+
+  if (!payment) return;
+
+  if (payment === "success") {
+    const user = await refreshUser();
+
+    if (user && user.plan === "pro") {
+      const modal = new bootstrap.Modal(
+        document.getElementById("paymentSuccessModal"),
+      );
+      modal.show();
+    } else {
+      Swal.fire({
+        icon: "info",
+        title: "付款確認中",
+        text: "付款狀態正在更新，請稍後重新整理頁面。",
+      });
+    }
+  }
+
+  if (payment === "back") {
+    Swal.fire({
+      icon: "info",
+      title: "尚未完成付款",
+      text: "您已返回 LUMArch，目前尚未完成升級。",
+    });
+  }
+
+  window.history.replaceState({}, document.title, window.location.pathname);
+}

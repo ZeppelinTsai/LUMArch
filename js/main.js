@@ -107,9 +107,11 @@ window.addEventListener("resize", () => {
     overlay.classList.remove("visible");
   }
 });
-
+document.addEventListener("DOMContentLoaded", () => {
+  renderAuthState();
+  handlePaymentReturn();
+});
 // ── Init ──────────────────────────────────────────────────────────────────────
 applyInitialSidebarState();
 loadSessions();
 renderHistoryList();
-renderAuthState();
