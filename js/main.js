@@ -52,10 +52,28 @@ async function sendMessage() {
     typingEl.remove();
     if (!res.ok) {
       if (res.status === 403) {
-        typingEl.remove();
-        Swal.fire("試用次數已用完", "請升級 Pro 繼續使用", "warning");
+        Swal.fire({
+          icon: "warning",
+          title: "試用次數已用完",
+          html: `
+        <div style="line-height:1.8">
+          請升級 Pro 繼續使用<br>
+          <strong>Pro 方案：NT$99 / 月</strong><br>
+          <small>不限次數查詢 / 附條文來源 / 節省手動翻法規時間</small>
+        </div>
+      `,
+          showCancelButton: true,
+          confirmButtonText: "升級 Pro",
+          cancelButtonText: "稍後再說",
+          confirmButtonColor: "#d6522c",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            openUpgradeModal();
+          }
+        });
         return;
       }
+
       addMessage("ai", `⚠️ ${data.detail || "伺服器錯誤"}`);
       return;
     }
