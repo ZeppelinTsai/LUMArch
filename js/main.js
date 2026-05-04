@@ -85,12 +85,12 @@ async function sendMessage() {
     const hasSrcTag = /\{src:\[[^\]]+\]\}/.test(aiText);
 
     if (hasSources && !hasSrcTag) {
-      const sourceLines = data.provided_sources
+      const fallbackSrcTags = data.provided_sources
         .slice(0, 5)
-        .map((s) => `[${s.sid}] ${s.loc_str}`)
-        .join("\n");
+        .map((s) => s.sid)
+        .join(",");
 
-      aiText += `\n\n參考來源:\n${sourceLines}`;
+      aiText += `\n\n參考來源 {src:[${fallbackSrcTags}]}`;
     }
 
     const srcMap = {};
