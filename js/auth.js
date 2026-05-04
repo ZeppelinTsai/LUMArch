@@ -53,10 +53,6 @@ async function handleEmailLogin() {
   renderAuthState();
 }
 
-function getToken() {
-  return localStorage.getItem(TOKEN_KEY);
-}
-
 function getUser() {
   try {
     return JSON.parse(localStorage.getItem("lumarch_user") || "null");
@@ -239,7 +235,6 @@ async function refreshUser() {
 
   return data.user;
 }
-
 async function handlePaymentReturn() {
   const params = new URLSearchParams(window.location.search);
   const payment = params.get("payment");
@@ -272,19 +267,4 @@ async function handlePaymentReturn() {
   }
 
   window.history.replaceState({}, document.title, window.location.pathname);
-}
-async function refreshUser() {
-  const token = getToken();
-  if (!token) return null;
-
-  const res = await fetch(`${API_BASE}/api/auth/me`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-
-  if (!res.ok) return null;
-
-  const data = await res.json();
-  localStorage.setItem("lumarch_user", JSON.stringify(data.user));
-  renderAuthState();
-  return data.user;
 }

@@ -137,7 +137,67 @@ function confirmCancel() {
   document.getElementById("confirmBackdrop").style.display = "none";
   _cb = null;
 }
+function escapeHtml(str = "") {
+  return String(str)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
 
+function formatMessage(content = "") {
+  let text = escapeHtml(content);
+
+  // 換行
+  text = text.replace(/\n/g, "<br>");
+
+  // {src:[S1,S2,S3]} → 來源按鈕
+  text = text.replace(/\{src:\[([^\]]+)\]\}/g, (_, raw) => {
+    const sids = raw
+      .split(",")
+      .map((x) => x.trim())
+      .filter(Boolean);
+
+    const buttons = sids
+      .map((sid) => {
+        const src = lastSourceBySid?.get(sid);
+        const title = src?.title || src?.law_name || sid;
+
+        return `
+        <button class="source-chip" onclick="openSource('${sid}')">
+          ${escapeHtml(sid)}｜${escapeHtml(title)}
+        </button>
+      `;
+      })
+      .join("");
+
+    return `<div class="source-list">${buttons}</div>`;
+  });
+
+  return text;
+}
+function openSource(sid) {
+  const src = lastSourceBySid?.get(sid);
+
+  if (!src) {
+    Swal.fire("找不到來源", sid, "warning");
+    return;
+  }
+
+  Swal.fire({
+    title: src.title || src.law_name || sid,
+    html: `
+      <div style="text-align:left;line-height:1.7;max-height:60vh;overflow:auto">
+        <div><strong>來源：</strong>${escapeHtml(src.sid || sid)}</div>
+        <hr>
+        <div>${escapeHtml(src.text || src.content || src.chunk_text || "沒有內容").replace(/\n/g, "<br>")}</div>
+      </div>
+    `,
+    width: 800,
+    heightAuto: false,
+  });
+}
 // ── addMessage ────────────────────────────────────────────────────────────────
 function addMessage(role, content, isTyping = false) {
   const msgs = document.getElementById("messages");
