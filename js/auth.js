@@ -273,3 +273,18 @@ async function handlePaymentReturn() {
 
   window.history.replaceState({}, document.title, window.location.pathname);
 }
+async function refreshUser() {
+  const token = getToken();
+  if (!token) return null;
+
+  const res = await fetch(`${API_BASE}/api/auth/me`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res.ok) return null;
+
+  const data = await res.json();
+  localStorage.setItem("lumarch_user", JSON.stringify(data.user));
+  renderAuthState();
+  return data.user;
+}
