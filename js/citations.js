@@ -151,7 +151,7 @@ function renderItemWithChips(item, sourceMap, sidIndexMap) {
     .join("");
   return `${escapeHtml(item.text)}${chips ? `<span class="src-chips">${chips}</span>` : ""}`;
 }
-function formatMessage(text, keyword) {
+function formatMessage(text, keyword, role = "ai") {
   const raw = (text || "").trim();
   if (!raw) return "";
   const ok =
@@ -213,7 +213,7 @@ function formatMessage(text, keyword) {
       </div>
     `;
     }
-    html += renderAnswerActions();
+    if (role === "ai") html += renderAnswerActions();
     return html;
   }
   const topic = (
@@ -260,7 +260,7 @@ function formatMessage(text, keyword) {
       .join("");
     html += `<div class="sources-block"><div class="sources-label">參考來源（點擊閱覽條文）</div><div class="source-list">${rows}</div></div>`;
   }
-  html += renderAnswerActions();
+  if (role === "ai") html += renderAnswerActions();
   return (
     html ||
     `<div style="line-height:1.8;">${escapeHtml(raw).replace(/\n/g, "<br>")}</div>`

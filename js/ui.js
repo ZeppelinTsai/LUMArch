@@ -161,7 +161,7 @@ function addMessage(role, content, isTyping = false, keyword = "") {
       '<div class="typing"><span></span><span></span><span></span></div>';
     div.id = "typing-indicator";
   } else {
-    bbl.innerHTML = formatMessage(content, keyword);
+    bbl.innerHTML = formatMessage(content, keyword, role);
   }
 
   div.appendChild(av);
