@@ -79,33 +79,17 @@ function renderAuthState() {
     guestEl.style.display = "none";
     userEl.style.display = "block";
 
+    // ⭐ 更新 UI
     const userDropdown = document.getElementById("userDropdown");
     const avatar = document.getElementById("userAvatar");
 
-    // 🟡 plan
-    if (planEl) {
-      planEl.textContent = (user.plan || "free").toUpperCase();
-    }
+    if (planEl) planEl.textContent = user.plan || "free";
+    if (userDropdown) userDropdown.textContent = user.email;
 
-    // 🟡 email 顯示
-    if (userDropdown) {
-      userDropdown.textContent = user.email;
-    }
-
-    // 🟡 avatar 邏輯（重點）
-    if (avatar) {
-      if (user.avatar_url) {
-        // ✅ 第三方登入（Google / GitHub）
-        avatar.src = user.avatar_url;
-      } else if (user.email) {
-        // ✅ email → 首字母
-        const firstChar = user.email.charAt(0).toUpperCase();
-
-        avatar.src = `https://ui-avatars.com/api/?name=${firstChar}&background=random&color=fff`;
-      } else {
-        // fallback
-        avatar.src = `https://ui-avatars.com/api/?name=U&background=random&color=fff`;
-      }
+    if (avatar && user.email) {
+      avatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+        user.email.charAt(0).toUpperCase(),
+      )}&background=random`;
     }
   } else {
     guestEl.style.display = "block";
