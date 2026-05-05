@@ -401,15 +401,20 @@ body {
   margin-top: 2px;
 }
 .avatar.ai {
-  background: var(--ink);
+  background: var(--accent);
   color: white;
   font-family: "Noto Serif TC", serif;
   font-size: 13px;
   font-weight: 700;
 }
-.avatar-icon {
+.avatar-icon-0 {
   width: 30px;
   height: 30px;
+  object-fit: contain;
+}
+.avatar-icon {
+  width: 24px;
+  height: 24px;
   object-fit: contain;
 }
 .avatar.user-av {
