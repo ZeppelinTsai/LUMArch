@@ -268,14 +268,23 @@ function formatMessage(text, keyword) {
 function getSourceDisplayName(sid, fallback = "") {
   const src = lastSourceBySid?.get(sid);
 
-  const name =
-    src?.loc_str ||
-    src?.law_name ||
-    src?.title ||
-    src?.source_title ||
-    src?.name ||
-    fallback ||
-    sid;
+  if (!src) return fallback || sid;
+
+  const loc = src.loc || {};
+
+  const parts = [
+    loc.law_name || src.law_name || src.title || src.source_title || src.name,
+    loc.chapter,
+    loc.section,
+    loc.article_no,
+  ].filter(Boolean);
+
+  const name = parts.length
+    ? parts.join(" / ")
+    : (src.loc_str || fallback || sid)
+        .split(" / ")
+        .filter((part) => !/^\[[^\]]+\]$/.test(part.trim()))
+        .join(" / ");
 
   if (!name || name.includes("<來源定位字串>")) {
     return sid;

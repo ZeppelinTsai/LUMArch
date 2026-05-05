@@ -738,7 +738,6 @@ body {
   max-height: min(62vh, 560px);
   line-height: 1.8;
   font-size: 13.5px;
-  white-space: pre-wrap;
 }
 .law-modal-footer {
   padding: 10px 16px;
