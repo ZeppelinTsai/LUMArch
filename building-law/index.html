@@ -89,27 +89,66 @@
     </main>
     <script>
       async function loadArticles() {
-        const res = await fetch("./articles.json");
+        const page = document.querySelector(".blog-page");
+        const pageRoot = page?.dataset.pageRoot || "./";
+        const articlesUrl = new URL(
+          "articles.json",
+          new URL(pageRoot, window.location.href),
+        );
+        const res = await fetch(articlesUrl);
+
+        if (!res.ok) {
+          throw new Error(`articles.json 載入失敗：HTTP ${res.status}`);
+        }
+
         const articles = await res.json();
 
         const container = document.getElementById("blogList");
 
         container.innerHTML = articles
-          .map(
-            (a) => `
+          .map((a) => {
+            const articlePath = `${pageRoot}${a.url}`;
+            const articleHref = new URL(
+              a.url,
+              new URL(pageRoot, window.location.href),
+            );
+
+            return `
     <article class="blog-card">
       <div class="blog-tag">${a.tag}</div>
       <h2>
-        <a href="./${a.url}">${a.title}</a>
+        <a href="${articleHref}" data-load-page="${articlePath}">${a.title}</a>
       </h2>
       <p>${a.desc}</p>
     </article>
-  `,
-          )
+  `;
+          })
           .join("");
+
+        container.querySelectorAll("[data-load-page]").forEach((link) => {
+          link.addEventListener("click", (event) => {
+            if (
+              typeof loadPage === "function" &&
+              document.getElementById("mainContent")
+            ) {
+              event.preventDefault();
+              loadPage(link.dataset.loadPage);
+            }
+          });
+        });
       }
 
-      loadArticles();
+      loadArticles().catch((err) => {
+        console.error(err);
+        const container = document.getElementById("blogList");
+        container.innerHTML = `
+          <article class="blog-card blog-card-muted">
+            <div class="blog-tag">載入失敗</div>
+            <h2>無法讀取文章列表</h2>
+            <p>${err.message}</p>
+          </article>
+        `;
+      });
     </script>
   </body>
 </html>

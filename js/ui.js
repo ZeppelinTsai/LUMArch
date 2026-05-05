@@ -142,8 +142,39 @@ async function loadPage(path) {
 
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
+    const pageRoot = path.includes("/")
+      ? path.slice(0, path.lastIndexOf("/") + 1)
+      : "./";
+    const scripts = [...doc.body.querySelectorAll("script")];
+
+    scripts.forEach((script) => script.remove());
 
     mainContent.innerHTML = doc.body.innerHTML;
+
+    const pageRootTarget = mainContent.querySelector(
+      "[data-page-root], .blog-page",
+    );
+    if (pageRootTarget) {
+      pageRootTarget.dataset.pageRoot = pageRoot;
+    }
+
+    scripts.forEach((script) => {
+      const runnableScript = document.createElement("script");
+
+      [...script.attributes].forEach((attr) => {
+        if (attr.name === "src") {
+          runnableScript.src = new URL(
+            attr.value,
+            new URL(pageRoot, window.location.href),
+          ).toString();
+        } else {
+          runnableScript.setAttribute(attr.name, attr.value);
+        }
+      });
+
+      runnableScript.textContent = script.textContent;
+      mainContent.appendChild(runnableScript);
+    });
 
     // 捲到頂部
     window.scrollTo({
