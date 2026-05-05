@@ -131,13 +131,35 @@ function gotoLawSearch() {
 async function loadPage(path) {
   const mainContent = document.getElementById("mainContent");
 
-  const res = await fetch(path);
-  const html = await res.text();
+  try {
+    const res = await fetch(path);
 
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, "text/html");
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
 
-  mainContent.innerHTML = doc.body.innerHTML;
+    const html = await res.text();
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+
+    mainContent.innerHTML = doc.body.innerHTML;
+
+    // 捲到頂部
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  } catch (err) {
+    console.error(err);
+
+    mainContent.innerHTML = `
+      <div style="padding:40px;">
+        <h2>頁面載入失敗</h2>
+        <p>${err.message}</p>
+      </div>
+    `;
+  }
 }
 function hideWelcome() {
   const w = document.getElementById("welcome");
