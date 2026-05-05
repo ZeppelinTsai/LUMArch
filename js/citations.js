@@ -151,7 +151,7 @@ function renderItemWithChips(item, sourceMap, sidIndexMap) {
     .join("");
   return `${escapeHtml(item.text)}${chips ? `<span class="src-chips">${chips}</span>` : ""}`;
 }
-function formatMessage(text) {
+function formatMessage(text, keyword) {
   const raw = (text || "").trim();
   if (!raw) return "";
   const ok =
@@ -196,10 +196,13 @@ function formatMessage(text) {
               <div class="source-row" data-sid="${sid}" onclick="openLawSid(this)">
                 <span class="source-num">${sid}</span>
                 <span class="source-name">
-                  ${escapeHtml(ref)}
-                  <span class="source-preview">
-                    ${escapeHtml(makeSourcePreview(lastSourceBySid?.get(sid)?.text))}
-                  </span>
+                  ${escapeHtml(name)}
+                <span class="source-preview">
+                  ${highlight(
+                    makeSourcePreview(lastSourceBySid?.get(sid)?.text),
+                    keyword,
+                  )}
+                </span>
                 </span>
                 <span class="source-arrow">›</span>
               </div>
@@ -245,7 +248,10 @@ function formatMessage(text) {
         <span class="source-name">
           ${escapeHtml(ref)}
           <span class="source-preview">
-            ${escapeHtml(makeSourcePreview(lastSourceBySid?.get(sid)?.text))}
+            ${highlight(
+              makeSourcePreview(lastSourceBySid?.get(sid)?.text),
+              keyword,
+            )}
           </span>
         </span>
         <span class="source-arrow">›</span>
@@ -444,4 +450,23 @@ function makeSourcePreview(text, len = 72) {
   if (!clean) return "";
 
   return clean.length > len ? clean.slice(0, len) + "…" : clean;
+}
+function highlight(text, keyword) {
+  if (!text || !keyword) return text;
+
+  // 1️⃣ escape，防 XSS
+  const safeText = escapeHtml(text);
+  const safeKeyword = escapeHtml(keyword);
+
+  // 2️⃣ 多關鍵字切分（空白）
+  const keywords = safeKeyword.split(/\s+/).filter(Boolean);
+
+  let result = safeText;
+
+  keywords.forEach((kw) => {
+    const regex = new RegExp(`(${kw})`, "gi"); // 不分大小寫
+    result = result.replace(regex, `<mark>$1</mark>`);
+  });
+
+  return result;
 }

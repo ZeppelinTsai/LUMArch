@@ -140,22 +140,26 @@ function confirmCancel() {
 }
 
 // ── addMessage ────────────────────────────────────────────────────────────────
-function addMessage(role, content, isTyping = false) {
+function addMessage(role, content, isTyping = false, keyword = "") {
   const msgs = document.getElementById("messages");
   const div = document.createElement("div");
   div.className = `message ${role}`;
+
   const av = document.createElement("div");
   av.className = `avatar ${role === "ai" ? "ai" : "user-av"}`;
   av.textContent = role === "ai" ? "法" : "您";
+
   const bbl = document.createElement("div");
   bbl.className = "bubble";
+
   if (isTyping) {
     bbl.innerHTML =
       '<div class="typing"><span></span><span></span><span></span></div>';
     div.id = "typing-indicator";
   } else {
-    bbl.innerHTML = formatMessage(content);
+    bbl.innerHTML = formatMessage(content, keyword);
   }
+
   div.appendChild(av);
   div.appendChild(bbl);
   msgs.appendChild(div);

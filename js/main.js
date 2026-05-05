@@ -102,7 +102,7 @@ async function sendMessage() {
     sess.messages.push({ role: "assistant", content: aiText });
     sess.ts = Date.now();
     saveSessions();
-    addMessage("ai", aiText);
+    addMessage("ai", aiText, false, text);
     renderHistoryList();
   } catch (err) {
     typingEl.remove();
