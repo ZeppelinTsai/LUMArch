@@ -69,7 +69,7 @@
       </div>
     </div>
 
-    <div class="main" id="mainContent">
+    <div class="main">
       <div class="topbar">
         <div class="topbar-left">
           <button
@@ -140,51 +140,54 @@
           </div>
         </div>
       </div>
-      <div class="messages" id="messages">
-        <div class="welcome" id="welcome">
-          <div class="welcome-icon">🏗️</div>
-          <h1>LUMArch 建築法規 AI 諮詢</h1>
-          <p>
-            您好！我能協助您查詢台灣建築法規相關問題，包括建造執照、使用執照、改建規範、消防安全、無障礙設施等。
-          </p>
-          <div class="suggestions">
-            <div class="suggestion-card" onclick="askSuggestion(this)">
-              <span class="suggestion-icon">🔨</span>改建需要申請哪些許可？
-            </div>
-            <div class="suggestion-card" onclick="askSuggestion(this)">
-              <span class="suggestion-icon">🚒</span>消防安全設備審查流程？
-            </div>
-            <div class="suggestion-card" onclick="askSuggestion(this)">
-              <span class="suggestion-icon">♿</span>無障礙設施的設置規定？
-            </div>
-            <div class="suggestion-card" onclick="askSuggestion(this)">
-              <span class="suggestion-icon">📋</span>使用執照申請需要哪些文件？
+      <div id="mainContent">
+        <div class="messages" id="messages">
+          <div class="welcome" id="welcome">
+            <div class="welcome-icon">🏗️</div>
+            <h1>LUMArch 建築法規 AI 諮詢</h1>
+            <p>
+              您好！我能協助您查詢台灣建築法規相關問題，包括建造執照、使用執照、改建規範、消防安全、無障礙設施等。
+            </p>
+            <div class="suggestions">
+              <div class="suggestion-card" onclick="askSuggestion(this)">
+                <span class="suggestion-icon">🔨</span>改建需要申請哪些許可？
+              </div>
+              <div class="suggestion-card" onclick="askSuggestion(this)">
+                <span class="suggestion-icon">🚒</span>消防安全設備審查流程？
+              </div>
+              <div class="suggestion-card" onclick="askSuggestion(this)">
+                <span class="suggestion-icon">♿</span>無障礙設施的設置規定？
+              </div>
+              <div class="suggestion-card" onclick="askSuggestion(this)">
+                <span class="suggestion-icon">📋</span
+                >使用執照申請需要哪些文件？
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="input-area">
-        <div class="input-wrapper">
-          <textarea
-            id="userInput"
-            placeholder="輸入您的建築法規問題..."
-            rows="1"
-            onkeydown="handleKey(event)"
-            oninput="autoResize(this)"
-          ></textarea>
-          <button class="send-btn" id="sendBtn" onclick="sendMessage()">
-            <svg viewBox="0 0 24 24">
-              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-            </svg>
-          </button>
-        </div>
-        <div class="disclaimer">本系統提供法規輔助分析，非正式法律意見。</div>
+        <div class="input-area">
+          <div class="input-wrapper">
+            <textarea
+              id="userInput"
+              placeholder="輸入您的建築法規問題..."
+              rows="1"
+              onkeydown="handleKey(event)"
+              oninput="autoResize(this)"
+            ></textarea>
+            <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+              <svg viewBox="0 0 24 24">
+                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+              </svg>
+            </button>
+          </div>
+          <div class="disclaimer">本系統提供法規輔助分析，非正式法律意見。</div>
 
-        <div class="pricing-note pro-hidden" id="pricingNote">
-          <span>Pro：NT$99/月，解鎖更多查詢</span>
-          <button class="upgrade-link" onclick="openUpgradeModal()">
-            升級
-          </button>
+          <div class="pricing-note pro-hidden" id="pricingNote">
+            <span>Pro：NT$99/月，解鎖更多查詢</span>
+            <button class="upgrade-link" onclick="openUpgradeModal()">
+              升級
+            </button>
+          </div>
         </div>
       </div>
     </div>
