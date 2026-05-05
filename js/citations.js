@@ -213,7 +213,7 @@ function formatMessage(text, keyword) {
       </div>
     `;
     }
-
+    html += renderAnswerActions();
     return html;
   }
   const topic = (
@@ -260,10 +260,56 @@ function formatMessage(text, keyword) {
       .join("");
     html += `<div class="sources-block"><div class="sources-label">參考來源（點擊閱覽條文）</div><div class="source-list">${rows}</div></div>`;
   }
+  html += renderAnswerActions();
   return (
     html ||
     `<div style="line-height:1.8;">${escapeHtml(raw).replace(/\n/g, "<br>")}</div>`
   );
+}
+function renderAnswerActions() {
+  return `
+    <div class="answer-actions">
+      <button class="action-btn" onclick="reportIssue(this)">問題回報</button>
+      <button class="action-btn" onclick="retryAnswer(this)">重新回答</button>
+      <button class="action-btn" onclick="copyAnswer(this)">複製答案</button>
+    </div>
+  `;
+}
+function reportIssue(btn) {
+  const bubble = btn.closest(".bubble");
+  const text = bubble.innerText;
+
+  const mail = "luxandpei@gmail.com";
+  const subject = encodeURIComponent("LUMArch 問題回報");
+  const body = encodeURIComponent(`以下是系統回答：\n\n${text}`);
+
+  window.location.href = `mailto:${mail}?subject=${subject}&body=${body}`;
+}
+function retryAnswer(btn) {
+  const sess = getSession(currentSessionId);
+  if (!sess) return;
+
+  // 找最後一個 user 問題
+  const lastUser = [...sess.messages].reverse().find((m) => m.role === "user");
+
+  if (!lastUser) return;
+
+  document.getElementById("userInput").value = lastUser.content;
+
+  sendMessage();
+}
+function copyAnswer(btn) {
+  const bubble = btn.closest(".bubble");
+  const clone = bubble.cloneNode(true);
+  clone.querySelector(".answer-actions")?.remove();
+
+  const text = clone.innerText.trim();
+  navigator.clipboard.writeText(text);
+
+  btn.innerText = "已複製 ✓";
+  setTimeout(() => {
+    btn.innerText = "複製答案";
+  }, 1200);
 }
 function getSourceDisplayName(sid, fallback = "") {
   const src = lastSourceBySid?.get(sid);
