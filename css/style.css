@@ -870,10 +870,6 @@ body {
   .topbar-actions {
     gap: 6px;
   }
-
-  #userEmail {
-    display: none;
-  }
 }
 .pricing-note {
   display: flex;

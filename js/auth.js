@@ -71,7 +71,6 @@ function renderAuthState() {
   const user = getUser();
   const guestEl = document.getElementById("authGuest");
   const userEl = document.getElementById("authUser");
-  const emailEl = document.getElementById("userEmail");
   const planEl = document.getElementById("userPlan");
 
   updatePricingVisibility(user);
@@ -81,7 +80,6 @@ function renderAuthState() {
   if (user) {
     guestEl.style.display = "none";
     userEl.style.display = "flex";
-    emailEl.textContent = user.email;
     planEl.textContent = user.plan || "free";
   } else {
     guestEl.style.display = "block";
