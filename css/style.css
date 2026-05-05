@@ -250,14 +250,6 @@ body {
   font-weight: 600;
   white-space: nowrap;
 }
-.tag {
-  font-size: 11px;
-  padding: 3px 10px;
-  border-radius: 20px;
-  border: 1px solid var(--line);
-  color: var(--muted);
-  white-space: nowrap;
-}
 
 /* Toggle button */
 .toggle-btn {
@@ -411,6 +403,11 @@ body {
   font-family: "Noto Serif TC", serif;
   font-size: 13px;
   font-weight: 700;
+}
+.avatar-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
 }
 .avatar.user-av {
   background: var(--accent);

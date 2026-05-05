@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-TW">
   <head>
-    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="./LUMArch.ico" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
@@ -75,8 +75,6 @@
           <div class="topbar-title">建築法規諮詢</div>
         </div>
         <div class="topbar-actions">
-          <div class="tag">🇹🇼 台灣法規適用</div>
-
           <div id="authGuest">
             <button class="btn btn-dark btn-sm" onclick="openLoginModal()">
               登入
@@ -146,7 +144,9 @@
 
     <!-- Law Modal -->
     <div class="modal fade law-modal" id="lawModal" tabindex="-1">
-      <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+      <div
+        class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable"
+      >
         <div class="modal-content">
           <div class="modal-header law-modal-header">
             <h5 class="modal-title law-modal-title" id="lawModalTitle">法條</h5>
@@ -157,9 +157,7 @@
               aria-label="Close"
             ></button>
           </div>
-          <div class="modal-body law-modal-body" id="lawModalBody">
-            載入中…
-          </div>
+          <div class="modal-body law-modal-body" id="lawModalBody">載入中…</div>
           <div class="modal-footer law-modal-footer">
             <a
               class="law-modal-link"

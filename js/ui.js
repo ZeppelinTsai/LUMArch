@@ -147,7 +147,11 @@ function addMessage(role, content, isTyping = false, keyword = "") {
 
   const av = document.createElement("div");
   av.className = `avatar ${role === "ai" ? "ai" : "user-av"}`;
-  av.textContent = role === "ai" ? "法" : "您";
+  if (role === "ai") {
+    av.innerHTML = `<img src="./LUMArch.ico" class="avatar-icon" />`;
+  } else {
+    av.textContent = "您";
+  }
 
   const bbl = document.createElement("div");
   bbl.className = "bubble";
