@@ -38,6 +38,16 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="../css/style.css" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"
+      integrity="sha384-/TgkGk7p307TH7EXJDuUlgG3Ce1UVolAOFopFekQkkXihi5u/6OCvVKyz1W+idaz"
+      crossorigin="anonymous"
+    ></script>
+    <script defer src="../js/page-router.js"></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
 
     <!-- 結構化資料（SEO加分） -->
     <script type="application/ld+json">
@@ -55,7 +65,12 @@
   </head>
 
   <body class="blog-body">
-    <main class="blog-page">
+    <main
+      class="blog-page"
+      data-page-root="./building-law/"
+      x-data="buildingLawIndex"
+      x-init="loadArticles()"
+    >
       <nav class="blog-nav" aria-label="頁面導覽">
         <a href="../index.html" class="back-link">回到 AI 查詢</a>
         <span>LUMArch 建築法規整理</span>
@@ -72,7 +87,37 @@
         <a href="../index.html" class="blog-cta">直接用 AI 查法規</a>
       </header>
 
-      <section class="blog-grid" id="blogList"></section>
+      <section class="blog-grid" id="blogList" aria-live="polite">
+        <template x-if="loading">
+          <article class="blog-card blog-card-muted">
+            <div class="blog-tag">Loading</div>
+            <h2>讀取文章列表中</h2>
+            <p>正在整理建築法規知識庫文章。</p>
+          </article>
+        </template>
+
+        <template x-if="error">
+          <article class="blog-card blog-card-muted">
+            <div class="blog-tag">載入失敗</div>
+            <h2>無法讀取文章列表</h2>
+            <p x-text="error"></p>
+          </article>
+        </template>
+
+        <template x-for="article in articles" :key="article.url">
+          <article class="blog-card">
+            <div class="blog-tag" x-text="article.tag"></div>
+            <h2>
+              <a
+                :href="articleHref(article)"
+                :data-main-link="articlePath(article)"
+                x-text="article.title"
+              ></a>
+            </h2>
+            <p x-text="article.desc"></p>
+          </article>
+        </template>
+      </section>
 
       <section class="blog-note">
         <div>
@@ -87,68 +132,5 @@
         </p>
       </section>
     </main>
-    <script>
-      async function loadArticles() {
-        const page = document.querySelector(".blog-page");
-        const pageRoot = page?.dataset.pageRoot || "./";
-        const articlesUrl = new URL(
-          "articles.json",
-          new URL(pageRoot, window.location.href),
-        );
-        const res = await fetch(articlesUrl);
-
-        if (!res.ok) {
-          throw new Error(`articles.json 載入失敗：HTTP ${res.status}`);
-        }
-
-        const articles = await res.json();
-
-        const container = document.getElementById("blogList");
-
-        container.innerHTML = articles
-          .map((a) => {
-            const articlePath = `${pageRoot}${a.url}`;
-            const articleHref = new URL(
-              a.url,
-              new URL(pageRoot, window.location.href),
-            );
-
-            return `
-    <article class="blog-card">
-      <div class="blog-tag">${a.tag}</div>
-      <h2>
-        <a href="${articleHref}" data-load-page="${articlePath}">${a.title}</a>
-      </h2>
-      <p>${a.desc}</p>
-    </article>
-  `;
-          })
-          .join("");
-
-        container.querySelectorAll("[data-load-page]").forEach((link) => {
-          link.addEventListener("click", (event) => {
-            if (
-              typeof loadPage === "function" &&
-              document.getElementById("mainContent")
-            ) {
-              event.preventDefault();
-              loadPage(link.dataset.loadPage);
-            }
-          });
-        });
-      }
-
-      loadArticles().catch((err) => {
-        console.error(err);
-        const container = document.getElementById("blogList");
-        container.innerHTML = `
-          <article class="blog-card blog-card-muted">
-            <div class="blog-tag">載入失敗</div>
-            <h2>無法讀取文章列表</h2>
-            <p>${err.message}</p>
-          </article>
-        `;
-      });
-    </script>
   </body>
 </html>

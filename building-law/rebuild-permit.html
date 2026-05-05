@@ -18,14 +18,24 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="../css/style.css" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"
+      integrity="sha384-/TgkGk7p307TH7EXJDuUlgG3Ce1UVolAOFopFekQkkXihi5u/6OCvVKyz1W+idaz"
+      crossorigin="anonymous"
+    ></script>
+    <script defer src="../js/page-router.js"></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
   </head>
   <body class="blog-body">
-    <main class="blog-page article-page">
+    <main class="blog-page article-page" data-page-root="./building-law/">
       <nav class="blog-nav" aria-label="頁面導覽">
         <a
           href="./index.html"
           class="back-link"
-          onclick="if (typeof loadPage === 'function' && document.getElementById('mainContent')) { event.preventDefault(); loadPage('./building-law/index.html'); }"
+          data-main-link="./building-law/index.html"
           >回到知識庫</a
         >
         <span>LUMArch 建築法規整理</span>

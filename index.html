@@ -18,6 +18,16 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./css/style.css" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"
+      integrity="sha384-/TgkGk7p307TH7EXJDuUlgG3Ce1UVolAOFopFekQkkXihi5u/6OCvVKyz1W+idaz"
+      crossorigin="anonymous"
+    ></script>
+    <script defer src="./js/page-router.js"></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
   </head>
   <body>
     <!-- Mobile overlay -->
@@ -42,7 +52,15 @@
           ⚖️ 法條查詢
         </button>
 
-        <button onclick="gotoBuildLaw()" class="btn btn-success mb-1">
+        <button
+          type="button"
+          class="btn btn-success mb-1"
+          hx-get="./building-law/index.html"
+          hx-target="#mainContent"
+          hx-select=".blog-page"
+          hx-swap="innerHTML show:window:top"
+          onclick="if (!window.htmx) gotoBuildLaw()"
+        >
           📚 建築法規知識庫
         </button>
 
