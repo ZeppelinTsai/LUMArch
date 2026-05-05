@@ -148,7 +148,7 @@ function addMessage(role, content, isTyping = false, keyword = "") {
   const av = document.createElement("div");
   av.className = `avatar ${role === "ai" ? "ai" : "user-av"}`;
   if (role === "ai") {
-    av.innerHTML = `<img src="./LUMArch.ico" class="avatar-icon" />`;
+    av.innerHTML = `<img src="./img/LUMArch_36.png" class="avatar-icon" />`;
   } else {
     av.textContent = "您";
   }
