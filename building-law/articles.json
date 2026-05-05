@@ -1,14 +1,20 @@
 [
   {
+    "title": "容積率怎麼算？完整計算方式＋實際案例整理",
+    "desc": "快速看懂容積率公式、建蔽率差異與土地開發常見觀念",
+    "tag": "土地開發",
+    "url": "articles/floor-area-ratio.html"
+  },
+  {
     "title": "改建需要申請建造執照嗎？",
     "desc": "整理改建工程常見的申請門檻與判斷方式",
     "tag": "改建",
-    "url": "rebuild-permit.html"
+    "url": "articles/rebuild-permit.html"
   },
   {
     "title": "違建會被罰嗎？處理方式整理",
     "desc": "快速掌握違章建築罰則與改善方式",
     "tag": "違建",
-    "url": "illegal-building.html"
+    "url": "articles/illegal-building.html"
   }
 ]
