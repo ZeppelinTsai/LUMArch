@@ -300,25 +300,26 @@ function retryAnswer(btn) {
 }
 function copyAnswer(btn) {
   const bubble = btn.closest(".bubble");
-
-  // 1️⃣ clone DOM
   const clone = bubble.cloneNode(true);
 
-  // 2️⃣ 移除不該複製的區塊
+  // 移除 UI 垃圾
   clone.querySelector(".sources-block")?.remove();
   clone.querySelector(".answer-actions")?.remove();
   clone.querySelectorAll(".src-chip").forEach((el) => el.remove());
 
-  // 3️⃣ 取純文字
-  let text = clone.innerText;
+  // ⭐ 改這裡：用 innerHTML 保留結構
+  let html = clone.innerHTML;
 
-  // 4️⃣ 清理格式（關鍵）
-  text = text
-    .replace(/①|②|③|④|⑤|⑥|⑦|⑧|⑨/g, "") // 移除圈號
-    .replace(/\n{2,}/g, "\n\n") // 避免過多空行
+  // 轉成「可讀文字」
+  html = html
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/div>/gi, "\n")
+    .replace(/<[^>]+>/g, "") // 移除剩餘標籤
+    .replace(/①|②|③|④|⑤|⑥|⑦|⑧|⑨/g, "")
+    .replace(/\n{2,}/g, "\n\n")
     .trim();
 
-  navigator.clipboard.writeText(text);
+  navigator.clipboard.writeText(html);
 
   btn.innerText = "已複製 ✓";
   setTimeout(() => {
