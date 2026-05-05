@@ -116,6 +116,29 @@ function showWelcome() {
     </div>
   </div>`;
 }
+function gotoBuildLaw() {
+  loadPage("./building-law/index.html");
+}
+function gotoLawSearch() {
+  const mainContent = document.getElementById("mainContent");
+  mainContent.innerHTML = `
+    <iframe
+      src="https://lumarch-back.onrender.com/law/"
+      style="width: 100%; height: 100%; border: none;"
+    ></iframe>
+  `;
+}
+async function loadPage(path) {
+  const mainContent = document.getElementById("mainContent");
+
+  const res = await fetch(path);
+  const html = await res.text();
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, "text/html");
+
+  mainContent.innerHTML = doc.body.innerHTML;
+}
 function hideWelcome() {
   const w = document.getElementById("welcome");
   if (w) w.remove();

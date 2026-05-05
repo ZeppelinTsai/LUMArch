@@ -38,7 +38,17 @@
             <div class="logo-sub">AI Building Regulation Assistant</div>
           </div>
         </div>
-        <button class="new-chat-btn" onclick="newChat()">✦ 新增討論串</button>
+        <button onclick="gotoLawSearch()" class="btn btn-primary mb-1">
+          ⚖️ 法條查詢
+        </button>
+
+        <button onclick="gotoBuildLaw()" class="btn btn-success mb-1">
+          📚 建築法規知識庫
+        </button>
+
+        <button class="btn new-chat-btn" onclick="newChat()">
+          ✦ 新增討論串
+        </button>
         <!-- 資料庫 -->
         <div class="history-label">歷史紀錄</div>
         <div id="historyList"></div>
@@ -59,7 +69,7 @@
       </div>
     </div>
 
-    <div class="main">
+    <div class="main" id="mainContent">
       <div class="topbar">
         <div class="topbar-left">
           <button
