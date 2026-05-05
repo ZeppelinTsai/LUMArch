@@ -958,6 +958,14 @@ mark {
   width: auto;
   object-fit: contain;
 }
+.auth-user button {
+  transition: all 0.15s ease;
+}
+
+.auth-user button:hover {
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 10px;
+}
 @media (max-width: 600px) {
   .pricing-note {
     font-size: 12px;
