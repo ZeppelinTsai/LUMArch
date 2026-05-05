@@ -300,10 +300,24 @@ function retryAnswer(btn) {
 }
 function copyAnswer(btn) {
   const bubble = btn.closest(".bubble");
-  const clone = bubble.cloneNode(true);
-  clone.querySelector(".answer-actions")?.remove();
 
-  const text = clone.innerText.trim();
+  // 1️⃣ clone DOM
+  const clone = bubble.cloneNode(true);
+
+  // 2️⃣ 移除不該複製的區塊
+  clone.querySelector(".sources-block")?.remove();
+  clone.querySelector(".answer-actions")?.remove();
+  clone.querySelectorAll(".src-chip").forEach((el) => el.remove());
+
+  // 3️⃣ 取純文字
+  let text = clone.innerText;
+
+  // 4️⃣ 清理格式（關鍵）
+  text = text
+    .replace(/①|②|③|④|⑤|⑥|⑦|⑧|⑨/g, "") // 移除圈號
+    .replace(/\n{2,}/g, "\n\n") // 避免過多空行
+    .trim();
+
   navigator.clipboard.writeText(text);
 
   btn.innerText = "已複製 ✓";
