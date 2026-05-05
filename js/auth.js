@@ -91,6 +91,7 @@ function renderAuthState() {
         user.email.charAt(0).toUpperCase(),
       )}&background=random`;
     }
+    updateProVisibility(user);
   } else {
     guestEl.style.display = "block";
     userEl.style.display = "none";
@@ -214,15 +215,12 @@ function startUpgrade() {
   const token = getToken();
   window.location.href = `${API_BASE}/api/payment/checkout?access_token=${encodeURIComponent(token)}`;
 }
-function updatePricingVisibility(user) {
-  const el = document.getElementById("pricingNote");
-  if (!el) return;
+function updateProVisibility(user) {
+  const isPro = user && user.plan === "pro";
 
-  if (user && user.plan === "pro") {
-    el.style.display = "none";
-  } else {
-    el.style.display = "flex";
-  }
+  document.querySelectorAll(".pro-hidden").forEach((el) => {
+    el.style.display = isPro ? "none" : "";
+  });
 }
 async function refreshUser() {
   const token = getToken();
