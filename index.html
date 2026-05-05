@@ -81,20 +81,53 @@
           </div>
         </div>
         <div class="topbar-actions">
+          <span id="userPlan" class="badge bg-primary"></span>
+          <!-- 未登入 -->
           <div id="authGuest">
             <button class="btn btn-dark btn-sm" onclick="openLoginModal()">
               登入
             </button>
           </div>
 
-          <div id="authUser" class="auth-user" style="display: none">
-            <span id="userPlan" class="badge bg-primary"></span>
+          <!-- 已登入 -->
+          <div id="authUser" class="dropdown" style="display: none">
             <button
-              class="btn btn-outline-secondary btn-sm"
-              onclick="handleLogout()"
+              class="btn btn-light btn-sm d-flex align-items-center gap-2"
+              data-bs-toggle="dropdown"
             >
-              登出
+              <img
+                id="userAvatar"
+                src="https://ui-avatars.com/api/?name=U&background=0D8ABC&color=fff"
+                class="rounded-circle"
+                width="28"
+                height="28"
+              />
+              <span id="userEmail" class="d-none d-md-inline"></span>
             </button>
+
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li
+                class="px-3 py-2 text-muted small"
+                id="userEmailDropdown"
+              ></li>
+
+              <li><hr class="dropdown-divider" /></li>
+
+              <li>
+                <button class="dropdown-item" onclick="openUpgradeModal()">
+                  升級 Pro
+                </button>
+              </li>
+
+              <li>
+                <button
+                  class="dropdown-item text-danger"
+                  onclick="handleLogout()"
+                >
+                  登出
+                </button>
+              </li>
+            </ul>
           </div>
         </div>
       </div>

@@ -73,14 +73,26 @@ function renderAuthState() {
   const userEl = document.getElementById("authUser");
   const planEl = document.getElementById("userPlan");
 
-  updatePricingVisibility(user);
-
   if (!guestEl || !userEl) return;
 
   if (user) {
     guestEl.style.display = "none";
-    userEl.style.display = "flex";
-    planEl.textContent = user.plan || "free";
+    userEl.style.display = "block";
+
+    // ⭐ 更新 UI
+    const emailEl = document.getElementById("userEmail");
+    const emailDropdown = document.getElementById("userEmailDropdown");
+    const avatar = document.getElementById("userAvatar");
+
+    if (emailEl) emailEl.textContent = user.email;
+    if (planEl) planEl.textContent = user.plan || "free";
+    if (emailDropdown) emailDropdown.textContent = user.email;
+
+    if (avatar && user.email) {
+      avatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+        user.email,
+      )}&background=random`;
+    }
   } else {
     guestEl.style.display = "block";
     userEl.style.display = "none";
