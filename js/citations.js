@@ -195,7 +195,12 @@ function formatMessage(text) {
               return `
               <div class="source-row" data-sid="${sid}" onclick="openLawSid(this)">
                 <span class="source-num">${sid}</span>
-                <span class="source-name">${escapeHtml(name)}</span>
+                <span class="source-name">
+                  ${escapeHtml(ref)}
+                  <span class="source-preview">
+                    ${escapeHtml(makeSourcePreview(lastSourceBySid?.get(sid)?.text))}
+                  </span>
+                </span>
                 <span class="source-arrow">›</span>
               </div>
             `;
@@ -237,7 +242,12 @@ function formatMessage(text) {
         ([sid, ref], i) =>
           `<div class="source-row" data-sid="${escapeHtml(sid)}" onclick="openLawSid(this)">
         <span class="source-num">${circled(i + 1)}</span>
-        <span class="source-name">${escapeHtml(ref)}</span>
+        <span class="source-name">
+          ${escapeHtml(ref)}
+          <span class="source-preview">
+            ${escapeHtml(makeSourcePreview(lastSourceBySid?.get(sid)?.text))}
+          </span>
+        </span>
         <span class="source-arrow">›</span>
       </div>`,
       )
@@ -293,7 +303,8 @@ function showLawModal(title) {
   const l = document.getElementById("lawModalLink");
   l.style.display = "none";
   l.href = "#";
-  document.getElementById("lawModalBackdrop").style.display = "flex";
+  const modalEl = document.getElementById("lawModal");
+  bootstrap.Modal.getOrCreateInstance(modalEl).show();
 }
 function guessLawFromText(text) {
   const t = (text || "").trim();
@@ -366,8 +377,8 @@ function renderLawModal({ title, body, source_url, fallback_hint }) {
   l.textContent = "開啟來源";
 }
 function closeLawModal(e) {
-  if (!e || e.target === document.getElementById("lawModalBackdrop"))
-    document.getElementById("lawModalBackdrop").style.display = "none";
+  const modalEl = document.getElementById("lawModal");
+  bootstrap.Modal.getInstance(modalEl)?.hide();
 }
 
 // ── Brutal law list fallback (MOJ LawAll) ────────────────────────────────────
@@ -426,4 +437,11 @@ function guessLawUrlFromText(text) {
   }
 
   return "";
+}
+function makeSourcePreview(text, len = 72) {
+  const clean = (text || "").replace(/\s+/g, " ").trim();
+
+  if (!clean) return "";
+
+  return clean.length > len ? clean.slice(0, len) + "…" : clean;
 }

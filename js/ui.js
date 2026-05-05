@@ -125,16 +125,17 @@ function hideWelcome() {
 let _cb = null;
 function showConfirm(msg, cb) {
   document.getElementById("confirmMsg").textContent = msg;
-  document.getElementById("confirmBackdrop").style.display = "flex";
   _cb = cb;
+  const modalEl = document.getElementById("confirmModal");
+  bootstrap.Modal.getOrCreateInstance(modalEl).show();
 }
 function confirmOk() {
-  document.getElementById("confirmBackdrop").style.display = "none";
+  const modalEl = document.getElementById("confirmModal");
+  bootstrap.Modal.getInstance(modalEl)?.hide();
   _cb?.();
   _cb = null;
 }
 function confirmCancel() {
-  document.getElementById("confirmBackdrop").style.display = "none";
   _cb = null;
 }
 

@@ -145,38 +145,56 @@
     </div>
 
     <!-- Law Modal -->
-    <div
-      class="law-modal-backdrop"
-      id="lawModalBackdrop"
-      onclick="closeLawModal(event)"
-    >
-      <div class="law-modal" onclick="event.stopPropagation()">
-        <div class="law-modal-header">
-          <div class="law-modal-title" id="lawModalTitle">法條</div>
-          <button class="law-modal-close" onclick="closeLawModal()">✕</button>
-        </div>
-        <div class="law-modal-body" id="lawModalBody">載入中…</div>
-        <div class="law-modal-footer">
-          <a
-            class="law-modal-link"
-            id="lawModalLink"
-            href="#"
-            target="_blank"
-            rel="noopener"
-            >開啟來源</a
-          >
-          <div class="law-modal-status" id="lawModalStatus"></div>
+    <div class="modal fade law-modal" id="lawModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header law-modal-header">
+            <h5 class="modal-title law-modal-title" id="lawModalTitle">法條</h5>
+            <button
+              type="button"
+              class="btn-close law-modal-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body law-modal-body" id="lawModalBody">
+            載入中…
+          </div>
+          <div class="modal-footer law-modal-footer">
+            <a
+              class="law-modal-link"
+              id="lawModalLink"
+              href="#"
+              target="_blank"
+              rel="noopener"
+              >開啟來源</a
+            >
+            <div class="law-modal-status" id="lawModalStatus"></div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Confirm Delete Dialog -->
-    <div class="confirm-backdrop" id="confirmBackdrop">
-      <div class="confirm-box">
-        <p id="confirmMsg">確定要刪除這筆對話紀錄嗎？</p>
-        <div class="confirm-actions">
-          <button class="confirm-cancel" onclick="confirmCancel()">取消</button>
-          <button class="confirm-ok" onclick="confirmOk()">刪除</button>
+    <div class="modal fade confirm-modal" id="confirmModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content confirm-box">
+          <div class="modal-body">
+            <p id="confirmMsg">確定要刪除這筆對話紀錄嗎？</p>
+            <div class="confirm-actions">
+              <button
+                type="button"
+                class="confirm-cancel"
+                data-bs-dismiss="modal"
+                onclick="confirmCancel()"
+              >
+                取消
+              </button>
+              <button type="button" class="confirm-ok" onclick="confirmOk()">
+                刪除
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
