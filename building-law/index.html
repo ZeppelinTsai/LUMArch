@@ -87,6 +87,20 @@
         <a href="../index.html" class="blog-cta">直接用 AI 查法規</a>
       </header>
 
+      <section class="blog-search" aria-label="搜尋知識庫文章">
+        <label for="articleSearch">搜尋文章</label>
+        <input
+          id="articleSearch"
+          type="search"
+          x-model="query"
+          placeholder="輸入關鍵字，例如：違建、容積率、改建"
+        />
+        <span
+          x-show="query"
+          x-text="`找到 ${filteredArticles.length} 篇`"
+        ></span>
+      </section>
+
       <section class="blog-grid" id="blogList" aria-live="polite">
         <template x-if="loading">
           <article class="blog-card blog-card-muted">
@@ -104,7 +118,15 @@
           </article>
         </template>
 
-        <template x-for="article in articles" :key="article.url">
+        <template x-if="!loading && !error && filteredArticles.length === 0">
+          <article class="blog-card blog-card-muted">
+            <div class="blog-tag">沒有結果</div>
+            <h2>找不到符合的文章</h2>
+            <p>請試試其他關鍵字，或直接使用 AI 查詢更完整的法規脈絡。</p>
+          </article>
+        </template>
+
+        <template x-for="article in filteredArticles" :key="article.url">
           <article class="blog-card">
             <div class="blog-tag" x-text="article.tag"></div>
             <h2>

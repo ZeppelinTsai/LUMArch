@@ -51,6 +51,7 @@
       articles: [],
       error: "",
       loading: true,
+      query: "",
 
       get embedded() {
         return hasMainContent();
@@ -71,6 +72,22 @@
 
       articlePath(article) {
         return `${this.pageRoot}${article.url}`;
+      },
+
+      get normalizedQuery() {
+        return this.query.trim().toLowerCase();
+      },
+
+      get filteredArticles() {
+        if (!this.normalizedQuery) return this.articles;
+
+        return this.articles.filter((article) => {
+          return [article.title, article.desc, article.tag]
+            .filter(Boolean)
+            .some((value) =>
+              value.toString().toLowerCase().includes(this.normalizedQuery),
+            );
+        });
       },
 
       async loadArticles() {

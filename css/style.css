@@ -1108,6 +1108,49 @@ mark {
   margin-top: 24px;
 }
 
+.blog-search {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+}
+
+.blog-search label {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.blog-search input {
+  min-width: 0;
+  border: 0;
+  outline: none;
+  color: var(--ink);
+  font-size: 14px;
+  background: transparent;
+}
+
+.blog-search input::placeholder {
+  color: #b0a89a;
+}
+
+.blog-search:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(200, 82, 42, 0.1);
+}
+
+.blog-search span {
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
 .blog-card {
   min-height: 180px;
   padding: 18px;
@@ -1331,6 +1374,10 @@ mark {
   }
 
   .blog-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .blog-search {
     grid-template-columns: 1fr;
   }
 
