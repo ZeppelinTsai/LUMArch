@@ -98,25 +98,56 @@ function loadSessionUI(id) {
 // ── Chat shell / welcome ──────────────────────────────────────────────────────
 const CHAT_WELCOME_HTML = `
   <div class="welcome" id="welcome">
-    <div class="welcome-icon">🏗️</div>
-    <h1>LUMArch 建築法規 AI 諮詢</h1>
-    <p>
-      您好！我能協助您查詢台灣建築法規相關問題，包括建造執照、使用執照、改建規範、消防安全、無障礙設施等。
-    </p>
-    <div class="suggestions">
-      <div class="suggestion-card" onclick="askSuggestion(this)">
-        <span class="suggestion-icon">🔨</span>改建需要申請哪些許可？
-      </div>
-      <div class="suggestion-card" onclick="askSuggestion(this)">
-        <span class="suggestion-icon">🚒</span>消防安全設備審查流程？
-      </div>
-      <div class="suggestion-card" onclick="askSuggestion(this)">
-        <span class="suggestion-icon">♿</span>無障礙設施的設置規定？
-      </div>
-      <div class="suggestion-card" onclick="askSuggestion(this)">
-        <span class="suggestion-icon">📋</span>使用執照申請需要哪些文件？
-      </div>
+
+    <div class="welcome-icon">
+      <img src="./img/LUMArch.png" alt="LUMArch Logo" />
     </div>
+
+    <h1>LUMArch 建築法規 AI 助理</h1>
+
+    <p>
+      快速查詢違建、改建、容積率、
+      地下室開挖與室內裝修等建築法規問題。
+    </p>
+
+    <div class="welcome-section-title">
+      🔥 大家最近都在查
+    </div>
+
+    <div class="suggestions">
+
+      <div class="suggestion-card" onclick="askSuggestion(this)">
+        <span class="suggestion-icon">⚠️</span>
+        陽台外推算違建嗎？
+      </div>
+
+      <div class="suggestion-card" onclick="askSuggestion(this)">
+        <span class="suggestion-icon">🏠</span>
+        頂樓加蓋合法嗎？
+      </div>
+
+      <div class="suggestion-card" onclick="askSuggestion(this)">
+        <span class="suggestion-icon">🔨</span>
+        改建需要申請哪些許可？
+      </div>
+
+      <div class="suggestion-card" onclick="askSuggestion(this)">
+        <span class="suggestion-icon">🚧</span>
+        地下室開挖幾公尺需要審查？
+      </div>
+
+      <div class="suggestion-card" onclick="askSuggestion(this)">
+        <span class="suggestion-icon">📐</span>
+        容積率怎麼算？
+      </div>
+
+      <div class="suggestion-card" onclick="askSuggestion(this)">
+        <span class="suggestion-icon">🚒</span>
+        店面裝修需要消防審查嗎？
+      </div>
+
+    </div>
+
   </div>`;
 
 const CHAT_INPUT_HTML = `

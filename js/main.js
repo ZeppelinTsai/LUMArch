@@ -132,11 +132,17 @@ window.addEventListener("resize", () => {
   }
 });
 document.addEventListener("DOMContentLoaded", async () => {
+  applyInitialSidebarState();
+
+  loadSessions();
+
+  renderChatShell();
+
+  renderHistoryList();
+
   await refreshUser();
+
   renderAuthState();
+
   handlePaymentReturn();
 });
-// ── Init ──────────────────────────────────────────────────────────────────────
-applyInitialSidebarState();
-loadSessions();
-renderHistoryList();
