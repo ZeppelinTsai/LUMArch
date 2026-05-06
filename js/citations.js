@@ -108,6 +108,32 @@ function parseSourceMap(block) {
   }
   return map;
 }
+function parseSourceIds(raw) {
+  const ids = new Set();
+  const tagMatch = raw.match(/\{src:\[([^\]]+)\]\}/);
+
+  if (tagMatch) {
+    tagMatch[1]
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean)
+      .forEach((id) => ids.add(id));
+  }
+
+  for (const match of raw.matchAll(/^\s*\[(S\d+)\]\s+(.+)$/gm)) {
+    ids.add(match[1]);
+  }
+
+  return [...ids];
+}
+function stripPlainSources(raw) {
+  return raw
+    .replace(/\n*\s*參考來源\s*\{src:\[[^\]]+\]\}\s*/g, "")
+    .replace(/\n*\s*參考來源[:：]?\s*(?:\n\s*\[S\d+\]\s+.*)+\s*$/g, "")
+    .replace(/\n*\s*(?:\[S\d+\]\s+.*\n?)+\s*$/g, "")
+    .replace(/\n*\s*參考來源\s*$/g, "")
+    .trim();
+}
 // Build sid → display index (1-based) from ordered source map
 function buildSidIndexMap(sourceMap) {
   const m = new Map();
@@ -160,10 +186,8 @@ function formatMessage(text, keyword, role = "ai") {
     raw.includes("詳細說明:") &&
     raw.includes("參考來源:");
   if (!ok) {
-    let body = raw.replace(/\n*\s*參考來源\s*\{src:\[[^\]]+\]\}\s*/g, "");
-    body = body.replace(/\n*\s*參考來源\s*$/g, "");
-
-    const srcMatch = raw.match(/\{src:\[([^\]]+)\]\}/);
+    const sourceIds = parseSourceIds(raw);
+    const body = stripPlainSources(raw);
 
     let html = `
     <div class="plain-answer">
@@ -171,17 +195,13 @@ function formatMessage(text, keyword, role = "ai") {
     </div>
   `;
 
-    if (srcMatch) {
-      const ids = srcMatch[1];
-
+    if (sourceIds.length) {
       html += `
       <div class="sources-block compact">
         <div class="sources-label">參考來源（點擊閱覽條文）</div>
         <div class="source-list">
-          ${ids
-            .split(",")
-            .map((id) => {
-              const sid = id.trim();
+          ${sourceIds
+            .map((sid) => {
               const src = lastSourceBySid?.get(sid);
 
               const name =
