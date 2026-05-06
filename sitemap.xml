@@ -19,21 +19,28 @@
 
   <!-- 知識文章 -->
   <url>
-    <loc>https://zeppelintsai.github.io/LUMArch/building-law/illegal-building.html</loc>
+    <loc>https://zeppelintsai.github.io/LUMArch/building-law/articles/renovation-illegal-building.html</loc>
+    <lastmod>2026-05-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://zeppelintsai.github.io/LUMArch/building-law/articles/illegal-building.html</loc>
     <lastmod>2025-05-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://zeppelintsai.github.io/LUMArch/building-law/rebuild-permit.html</loc>
+    <loc>https://zeppelintsai.github.io/LUMArch/building-law/articles/rebuild-permit.html</loc>
     <lastmod>2025-05-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://zeppelintsai.github.io/LUMArch/building-law/floor-area-ratio.html</loc>
+    <loc>https://zeppelintsai.github.io/LUMArch/building-law/articles/floor-area-ratio.html</loc>
     <lastmod>2025-05-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
