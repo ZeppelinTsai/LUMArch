@@ -4,6 +4,8 @@ let voiceIsListening = false;
 let voiceShouldKeepListening = false;
 let voiceBaseText = "";
 let voiceFinalText = "";
+let activeSpeechButton = null;
+let activeSpeechUtterance = null;
 
 const originalRenderChatShell = window.renderChatShell;
 if (typeof originalRenderChatShell === "function") {
@@ -16,6 +18,84 @@ if (typeof originalRenderChatShell === "function") {
 
 function getSpeechRecognition() {
   return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+}
+
+function cleanSpeechText(text) {
+  return String(text || "")
+    .replace(/\{src:\[[^\]]+\]\}/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function pickChineseVoice() {
+  const voices = window.speechSynthesis?.getVoices?.() || [];
+  return (
+    voices.find((voice) => voice.lang === "zh-TW") ||
+    voices.find((voice) => voice.lang?.startsWith("zh")) ||
+    null
+  );
+}
+
+function setSpeechButtonState(button, isSpeaking) {
+  if (!button) return;
+
+  button.classList.toggle("speaking", isSpeaking);
+  button.innerHTML = isSpeaking
+    ? `<i class="bi bi-stop-fill" aria-hidden="true"></i><span>停止朗讀</span>`
+    : `<i class="bi bi-volume-up-fill" aria-hidden="true"></i><span>朗讀</span>`;
+  button.title = isSpeaking ? "停止朗讀" : "朗讀 AI 回答";
+  button.setAttribute("aria-label", button.title);
+}
+
+function stopAiSpeech() {
+  window.speechSynthesis?.cancel();
+  setSpeechButtonState(activeSpeechButton, false);
+  activeSpeechButton = null;
+  activeSpeechUtterance = null;
+}
+
+function createAiSpeechButton(content) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "speech-btn";
+  setSpeechButtonState(button, false);
+
+  if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) {
+    button.disabled = true;
+    button.title = "此瀏覽器不支援語音朗讀";
+    return button;
+  }
+
+  button.addEventListener("click", () => {
+    if (activeSpeechButton === button) {
+      stopAiSpeech();
+      return;
+    }
+
+    const speechText = cleanSpeechText(content);
+    if (!speechText) return;
+
+    stopAiSpeech();
+
+    const utterance = new SpeechSynthesisUtterance(speechText);
+    utterance.lang = "zh-TW";
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    utterance.voice = pickChineseVoice();
+    utterance.onend = () => {
+      if (activeSpeechUtterance === utterance) stopAiSpeech();
+    };
+    utterance.onerror = () => {
+      if (activeSpeechUtterance === utterance) stopAiSpeech();
+    };
+
+    activeSpeechButton = button;
+    activeSpeechUtterance = utterance;
+    setSpeechButtonState(button, true);
+    window.speechSynthesis.speak(utterance);
+  });
+
+  return button;
 }
 
 function setupVoiceInput() {

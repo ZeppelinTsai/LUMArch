@@ -388,6 +388,14 @@ function addMessage(role, content, isTyping = false, keyword = "") {
 
   div.appendChild(av);
   div.appendChild(bbl);
+
+  if (role === "ai" && !isTyping && typeof createAiSpeechButton === "function") {
+    const actions = document.createElement("div");
+    actions.className = "message-actions";
+    actions.appendChild(createAiSpeechButton(content));
+    bbl.appendChild(actions);
+  }
+
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
   return div;
