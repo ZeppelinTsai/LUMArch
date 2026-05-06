@@ -305,7 +305,11 @@
               placeholder="輸入 Email"
             />
 
-            <button class="btn btn-dark w-100" onclick="requestCode()">
+            <button
+              id="requestCodeBtn"
+              class="btn btn-dark w-100"
+              onclick="requestCode()"
+            >
               發送驗證碼
             </button>
             <div id="codeArea" style="display: none">
@@ -315,7 +319,11 @@
                 placeholder="輸入 6 位驗證碼"
               />
 
-              <button class="btn btn-dark w-100 mt-2" onclick="verifyCode()">
+              <button
+                id="verifyCodeBtn"
+                class="btn btn-dark w-100 mt-2"
+                onclick="verifyCode()"
+              >
                 驗證並登入
               </button>
             </div>

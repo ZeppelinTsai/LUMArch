@@ -134,66 +134,103 @@ async function handleEmailLoginModal() {
 }
 async function requestCode() {
   const email = document.getElementById("loginEmail").value.trim();
+  const btn = document.getElementById("requestCodeBtn");
 
   if (!email) {
     Swal.fire("請輸入 Email");
     return;
   }
 
-  const res = await fetch(`${API_BASE}/api/auth/request-code`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email }),
-  });
+  btn.disabled = true;
+  btn.textContent = "發送中...";
 
-  const data = await res.json();
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/request-code`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
 
-  if (!res.ok) {
-    Swal.fire("發送失敗", data.detail || "請稍後再試", "error");
-    return;
+    const data = await res.json();
+
+    if (!res.ok) {
+      btn.disabled = false;
+      btn.textContent = "發送驗證碼";
+
+      Swal.fire("發送失敗", data.detail || "請稍後再試", "error");
+
+      return;
+    }
+
+    document.getElementById("codeArea").style.display = "block";
+
+    Swal.fire(
+      "驗證碼已建立",
+      data.dev_code ? `開發測試碼：${data.dev_code}` : "請查看信箱",
+      "success",
+    );
+
+    let sec = 60;
+    const timer = setInterval(() => {
+      sec--;
+      btn.textContent = `${sec} 秒後可重送`;
+
+      if (sec <= 0) {
+        clearInterval(timer);
+        btn.disabled = false;
+        btn.textContent = "重新發送驗證碼";
+      }
+    }, 1000);
+  } catch (err) {
+    Swal.fire("發送失敗", "網路連線異常，請稍後再試", "error");
+    btn.disabled = false;
+    btn.textContent = "發送驗證碼";
   }
-
-  document.getElementById("codeArea").style.display = "block";
-
-  Swal.fire(
-    "驗證碼已建立",
-    data.dev_code ? `開發測試碼：${data.dev_code}` : "請查看信箱",
-    "success",
-  );
 }
 
 async function verifyCode() {
   const email = document.getElementById("loginEmail").value.trim();
   const code = document.getElementById("loginCode").value.trim();
+  const btn = document.getElementById("verifyCodeBtn");
 
   if (!email || !code) {
     Swal.fire("請輸入 Email 與驗證碼");
     return;
   }
 
-  const res = await fetch(`${API_BASE}/api/auth/verify-code`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, code }),
-  });
+  btn.disabled = true;
+  btn.textContent = "驗證中...";
 
-  const data = await res.json();
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/verify-code`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, code }),
+    });
 
-  if (!res.ok) {
-    Swal.fire("登入失敗", data.detail || "驗證碼錯誤", "error");
-    return;
+    const data = await res.json();
+
+    if (!res.ok) {
+      Swal.fire("登入失敗", data.detail || "驗證碼錯誤", "error");
+      btn.disabled = false;
+      btn.textContent = "驗證並登入";
+      return;
+    }
+
+    localStorage.setItem(TOKEN_KEY, data.token);
+    localStorage.setItem("lumarch_user", JSON.stringify(data.user));
+
+    renderAuthState();
+
+    Swal.fire("登入成功", data.user.email, "success");
+
+    const modalEl = document.getElementById("loginModal");
+    bootstrap.Modal.getInstance(modalEl)?.hide();
+  } catch (err) {
+    Swal.fire("登入失敗", "網路連線異常，請稍後再試", "error");
+    btn.disabled = false;
+    btn.textContent = "驗證並登入";
   }
-
-  localStorage.setItem(TOKEN_KEY, data.token);
-  localStorage.setItem("lumarch_user", JSON.stringify(data.user));
-
-  renderAuthState();
-
-  Swal.fire("登入成功", data.user.email, "success");
-
-  const modalEl = document.getElementById("loginModal");
-  bootstrap.Modal.getInstance(modalEl)?.hide();
-  renderAuthState();
 }
 function openUpgradeModal() {
   const modal = new bootstrap.Modal(document.getElementById("upgradeModal"));
@@ -232,7 +269,12 @@ async function refreshUser() {
     },
   });
 
-  if (!res.ok) return null;
+  if (!res.ok) {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem("lumarch_user");
+    renderAuthState();
+    return null;
+  }
 
   const data = await res.json();
 
