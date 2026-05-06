@@ -95,65 +95,109 @@ function loadSessionUI(id) {
   renderHistoryList();
 }
 
+// ── Chat shell / welcome ──────────────────────────────────────────────────────
+const CHAT_WELCOME_HTML = `
+  <div class="welcome" id="welcome">
+    <div class="welcome-icon">🏗️</div>
+    <h1>LUMArch 建築法規 AI 諮詢</h1>
+    <p>
+      您好！我能協助您查詢台灣建築法規相關問題，包括建造執照、使用執照、改建規範、消防安全、無障礙設施等。
+    </p>
+    <div class="suggestions">
+      <div class="suggestion-card" onclick="askSuggestion(this)">
+        <span class="suggestion-icon">🔨</span>改建需要申請哪些許可？
+      </div>
+      <div class="suggestion-card" onclick="askSuggestion(this)">
+        <span class="suggestion-icon">🚒</span>消防安全設備審查流程？
+      </div>
+      <div class="suggestion-card" onclick="askSuggestion(this)">
+        <span class="suggestion-icon">♿</span>無障礙設施的設置規定？
+      </div>
+      <div class="suggestion-card" onclick="askSuggestion(this)">
+        <span class="suggestion-icon">📋</span>使用執照申請需要哪些文件？
+      </div>
+    </div>
+  </div>`;
+
+const CHAT_INPUT_HTML = `
+  <div class="input-area">
+    <div class="input-wrapper">
+      <textarea
+        id="userInput"
+        placeholder="輸入您的建築法規問題..."
+        rows="1"
+        onkeydown="handleKey(event)"
+        oninput="autoResize(this)"
+      ></textarea>
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+        <svg viewBox="0 0 24 24">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+        </svg>
+      </button>
+    </div>
+    <div class="disclaimer">本系統提供法規輔助分析，非正式法律意見。</div>
+
+    <div class="pricing-note pro-hidden" id="pricingNote">
+      <span>Pro：NT$199/月，每月 150 次 AI 法規查詢</span>
+      <button class="upgrade-link" onclick="openUpgradeModal()">
+        升級
+      </button>
+    </div>
+  </div>`;
+
+function renderChatShell() {
+  const mainContent = document.getElementById("mainContent");
+  if (!mainContent) return;
+
+  mainContent.innerHTML = `
+    <div class="messages" id="messages">
+      ${CHAT_WELCOME_HTML}
+    </div>
+    ${CHAT_INPUT_HTML}
+  `;
+}
+
+function ensureChatUI(resetWelcome = false) {
+  const mainContent = document.getElementById("mainContent");
+  if (!mainContent) return;
+
+  const hasChatShell =
+    document.getElementById("messages") && document.getElementById("userInput");
+
+  if (!hasChatShell) {
+    renderChatShell();
+  } else if (resetWelcome) {
+    showWelcome();
+  }
+
+  if (resetWelcome) {
+    const input = document.getElementById("userInput");
+    if (input) {
+      input.value = "";
+      input.style.height = "auto";
+    }
+  }
+
+  if (typeof renderAuthState === "function") renderAuthState();
+}
+
 // ── newChat / welcome ─────────────────────────────────────────────────────────
 function newChat() {
   currentSessionId = null;
   lastSourceBySid = new Map();
-  showWelcome();
+  ensureChatUI(true);
   renderHistoryList();
+  document.getElementById("userInput")?.focus();
 }
 function showWelcome() {
-  document.getElementById("messages").innerHTML = `
-  <div class="welcome" id="welcome">
+  const messages = document.getElementById("messages");
+  if (!messages) {
+    renderChatShell();
+    if (typeof renderAuthState === "function") renderAuthState();
+    return;
+  }
 
-    <div class="welcome-icon">🏗️</div>
-
-    <h1>建築法規 AI 助理</h1>
-
-    <p>
-      快速查詢違建、改建、容積率、
-      地下室開挖與室內裝修等建築法規問題。
-    </p>
-
-    <div class="welcome-section-title">
-      🔥 大家最近都在查
-    </div>
-
-    <div class="suggestions">
-
-      <div class="suggestion-card" onclick="askSuggestion(this)">
-        <span class="suggestion-icon">⚠️</span>
-        陽台外推算違建嗎？
-      </div>
-
-      <div class="suggestion-card" onclick="askSuggestion(this)">
-        <span class="suggestion-icon">🏠</span>
-        頂樓加蓋合法嗎？
-      </div>
-
-      <div class="suggestion-card" onclick="askSuggestion(this)">
-        <span class="suggestion-icon">🔨</span>
-        改建需要申請哪些許可？
-      </div>
-
-      <div class="suggestion-card" onclick="askSuggestion(this)">
-        <span class="suggestion-icon">🚧</span>
-        地下室開挖幾公尺需要審查？
-      </div>
-
-      <div class="suggestion-card" onclick="askSuggestion(this)">
-        <span class="suggestion-icon">📐</span>
-        容積率怎麼算？
-      </div>
-
-      <div class="suggestion-card" onclick="askSuggestion(this)">
-        <span class="suggestion-icon">🚒</span>
-        店面裝修需要消防審查嗎？
-      </div>
-
-    </div>
-
-  </div>`;
+  messages.innerHTML = CHAT_WELCOME_HTML;
 }
 function gotoBuildLaw() {
   loadPage("./building-law/index.html");

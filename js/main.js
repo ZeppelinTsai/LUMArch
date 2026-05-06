@@ -1,5 +1,7 @@
 // ── sendMessage ───────────────────────────────────────────────────────────────
 async function sendMessage() {
+  ensureChatUI();
+
   if (!getToken()) {
     addMessage("ai", "請先登入後再開始查詢。");
     return;
