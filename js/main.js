@@ -1,6 +1,144 @@
+// ── Voice recognition ─────────────────────────────────────────────────────────
+let voiceRecognition = null;
+let voiceIsListening = false;
+let voiceShouldKeepListening = false;
+let voiceBaseText = "";
+let voiceFinalText = "";
+
+const originalRenderChatShell = window.renderChatShell;
+if (typeof originalRenderChatShell === "function") {
+  window.renderChatShell = function patchedRenderChatShell(...args) {
+    const result = originalRenderChatShell.apply(this, args);
+    setupVoiceInput();
+    return result;
+  };
+}
+
+function getSpeechRecognition() {
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+}
+
+function setupVoiceInput() {
+  const input = document.getElementById("userInput");
+  const sendBtn = document.getElementById("sendBtn");
+  const wrapper = input?.closest(".input-wrapper");
+  if (!input || !sendBtn || !wrapper || document.getElementById("voiceBtn")) {
+    return;
+  }
+
+  const voiceBtn = document.createElement("button");
+  voiceBtn.type = "button";
+  voiceBtn.id = "voiceBtn";
+  voiceBtn.className = "voice-btn";
+  voiceBtn.title = "語音輸入";
+  voiceBtn.setAttribute("aria-label", "語音輸入");
+  voiceBtn.innerHTML = `<i class="bi bi-mic-fill" aria-hidden="true"></i>`;
+
+  if (!getSpeechRecognition()) {
+    voiceBtn.disabled = true;
+    voiceBtn.title = "此瀏覽器不支援語音辨識";
+  } else {
+    voiceBtn.addEventListener("click", toggleVoiceRecognition);
+  }
+
+  wrapper.insertBefore(voiceBtn, sendBtn);
+}
+
+function setVoiceListeningState(isListening) {
+  voiceIsListening = isListening;
+
+  const voiceBtn = document.getElementById("voiceBtn");
+  const wrapper = document.getElementById("userInput")?.closest(".input-wrapper");
+  if (!voiceBtn || !wrapper) return;
+
+  voiceBtn.classList.toggle("listening", isListening);
+  wrapper.classList.toggle("listening", isListening);
+  voiceBtn.innerHTML = isListening
+    ? `<i class="bi bi-stop-fill" aria-hidden="true"></i>`
+    : `<i class="bi bi-mic-fill" aria-hidden="true"></i>`;
+  voiceBtn.title = isListening ? "停止語音輸入" : "語音輸入";
+  voiceBtn.setAttribute(
+    "aria-label",
+    isListening ? "停止語音輸入" : "語音輸入",
+  );
+}
+
+function toggleVoiceRecognition() {
+  const SpeechRecognition = getSpeechRecognition();
+  const input = document.getElementById("userInput");
+  if (!SpeechRecognition || !input) return;
+
+  if (voiceIsListening) {
+    voiceShouldKeepListening = false;
+    voiceRecognition?.stop();
+    return;
+  }
+
+  voiceShouldKeepListening = true;
+  voiceBaseText = input.value.trim();
+  voiceFinalText = "";
+  startVoiceRecognition(SpeechRecognition, input);
+}
+
+function startVoiceRecognition(SpeechRecognition, input) {
+  voiceRecognition = new SpeechRecognition();
+  voiceRecognition.lang = "zh-TW";
+  voiceRecognition.interimResults = true;
+  voiceRecognition.continuous = true;
+
+  voiceRecognition.onstart = () => setVoiceListeningState(true);
+
+  voiceRecognition.onresult = (event) => {
+    let interimTranscript = "";
+
+    for (let i = event.resultIndex; i < event.results.length; i += 1) {
+      const transcript = event.results[i][0].transcript.trim();
+      if (event.results[i].isFinal) {
+        voiceFinalText = [voiceFinalText, transcript].filter(Boolean).join(" ");
+      } else {
+        interimTranscript = [interimTranscript, transcript]
+          .filter(Boolean)
+          .join(" ");
+      }
+    }
+
+    input.value = [voiceBaseText, voiceFinalText, interimTranscript]
+      .filter(Boolean)
+      .join(" ");
+    autoResize(input);
+  };
+
+  voiceRecognition.onerror = (event) => {
+    if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+      voiceShouldKeepListening = false;
+      setVoiceListeningState(false);
+      addMessage("ai", "⚠️ 請允許瀏覽器使用麥克風後，再試一次語音輸入。");
+    }
+  };
+
+  voiceRecognition.onend = () => {
+    if (voiceShouldKeepListening) {
+      startVoiceRecognition(SpeechRecognition, input);
+      return;
+    }
+
+    setVoiceListeningState(false);
+    input.focus();
+  };
+
+  try {
+    voiceRecognition.start();
+  } catch (err) {
+    voiceShouldKeepListening = false;
+    setVoiceListeningState(false);
+    addMessage("ai", "⚠️ 目前無法啟動語音輸入，請確認瀏覽器與麥克風權限。");
+  }
+}
+
 // ── sendMessage ───────────────────────────────────────────────────────────────
 async function sendMessage() {
   ensureChatUI();
+  setupVoiceInput();
 
   if (!getToken()) {
     addMessage("ai", "請先登入後再開始查詢。");
@@ -137,6 +275,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   loadSessions();
 
   renderChatShell();
+  setupVoiceInput();
 
   renderHistoryList();
 
