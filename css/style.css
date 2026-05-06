@@ -1227,6 +1227,81 @@ mark {
   line-height: 1.9;
 }
 
+.article-card {
+  margin-bottom: 18px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+}
+
+.article-card h2 {
+  margin-bottom: 12px;
+  font-family: "Noto Serif TC", serif;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.article-card p,
+.article-card li {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.85;
+}
+
+.article-card ul {
+  margin-bottom: 0;
+  padding-left: 1.25rem;
+}
+
+.formula {
+  margin: 16px 0;
+  padding: 14px 16px;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  background: #faf7f2;
+  color: var(--ink);
+  font-weight: 700;
+  line-height: 1.75;
+}
+
+.example-box {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #faf7f2;
+}
+
+.article-card.warning {
+  background: #fff7f4;
+  border-color: rgba(200, 82, 42, 0.32);
+}
+
+.article-card.source {
+  background: transparent;
+}
+
+.cta {
+  margin-top: 24px;
+  padding: 24px;
+  border-radius: 8px;
+  background: var(--ink);
+  color: white;
+}
+
+.cta h2,
+.cta p {
+  color: white;
+}
+
+.cta a {
+  display: inline-flex;
+  margin-top: 8px;
+  color: white;
+  font-weight: 700;
+}
+
 @media (max-width: 760px) {
   .blog-page {
     padding: 24px 16px 40px;

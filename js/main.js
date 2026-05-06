@@ -32,6 +32,12 @@ async function sendMessage() {
   sess.ts = Date.now();
   saveSessions();
   addMessage("user", text);
+
+  const history = sess.messages.slice(-8).map((m) => ({
+    role: m.role,
+    content: m.content,
+  }));
+
   const typingEl = addMessage("ai", "", true);
 
   try {
