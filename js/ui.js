@@ -105,15 +105,54 @@ function newChat() {
 function showWelcome() {
   document.getElementById("messages").innerHTML = `
   <div class="welcome" id="welcome">
+
     <div class="welcome-icon">🏗️</div>
-    <h1>建築法規 AI 諮詢</h1>
-    <p>您好！我能協助您查詢台灣建築法規相關問題，包括建造執照、使用執照、改建規範、消防安全、無障礙設施等。</p>
-    <div class="suggestions">
-      <div class="suggestion-card" onclick="askSuggestion(this)"><span class="suggestion-icon">🔨</span>改建需要申請哪些許可？</div>
-      <div class="suggestion-card" onclick="askSuggestion(this)"><span class="suggestion-icon">🚒</span>消防安全設備審查流程？</div>
-      <div class="suggestion-card" onclick="askSuggestion(this)"><span class="suggestion-icon">♿</span>無障礙設施的設置規定？</div>
-      <div class="suggestion-card" onclick="askSuggestion(this)"><span class="suggestion-icon">📋</span>使用執照申請需要哪些文件？</div>
+
+    <h1>建築法規 AI 助理</h1>
+
+    <p>
+      快速查詢違建、改建、容積率、
+      地下室開挖與室內裝修等建築法規問題。
+    </p>
+
+    <div class="welcome-section-title">
+      🔥 大家最近都在查
     </div>
+
+    <div class="suggestions">
+
+      <div class="suggestion-card" onclick="askSuggestion(this)">
+        <span class="suggestion-icon">⚠️</span>
+        陽台外推算違建嗎？
+      </div>
+
+      <div class="suggestion-card" onclick="askSuggestion(this)">
+        <span class="suggestion-icon">🏠</span>
+        頂樓加蓋合法嗎？
+      </div>
+
+      <div class="suggestion-card" onclick="askSuggestion(this)">
+        <span class="suggestion-icon">🔨</span>
+        改建需要申請哪些許可？
+      </div>
+
+      <div class="suggestion-card" onclick="askSuggestion(this)">
+        <span class="suggestion-icon">🚧</span>
+        地下室開挖幾公尺需要審查？
+      </div>
+
+      <div class="suggestion-card" onclick="askSuggestion(this)">
+        <span class="suggestion-icon">📐</span>
+        容積率怎麼算？
+      </div>
+
+      <div class="suggestion-card" onclick="askSuggestion(this)">
+        <span class="suggestion-icon">🚒</span>
+        店面裝修需要消防審查嗎？
+      </div>
+
+    </div>
+
   </div>`;
 }
 function gotoBuildLaw() {
@@ -233,9 +272,41 @@ function addMessage(role, content, isTyping = false, keyword = "") {
   bbl.className = "bubble";
 
   if (isTyping) {
-    bbl.innerHTML =
-      '<div class="typing"><span></span><span></span><span></span></div>';
+    bbl.innerHTML = `
+    <div class="typing-wrap">
+      <div class="typing">
+        <span></span><span></span><span></span>
+      </div>
+
+      <div class="typing-text" id="typingText">
+        正在搜尋建築法規資料庫...
+      </div>
+    </div>
+  `;
+
     div.id = "typing-indicator";
+
+    // 階段式文字
+    setTimeout(() => {
+      const el = document.getElementById("typingText");
+      if (el) {
+        el.textContent = "正在分析相關條文...";
+      }
+    }, 4000);
+
+    setTimeout(() => {
+      const el = document.getElementById("typingText");
+      if (el) {
+        el.textContent = "正在整理法規重點...";
+      }
+    }, 9000);
+
+    setTimeout(() => {
+      const el = document.getElementById("typingText");
+      if (el) {
+        el.textContent = "正在產生 AI 回答...";
+      }
+    }, 14000);
   } else {
     bbl.innerHTML = formatMessage(content, keyword, role);
   }

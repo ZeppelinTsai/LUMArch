@@ -1344,7 +1344,17 @@ mark {
   color: white;
   font-weight: 700;
 }
+.typing-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 
+.typing-text {
+  font-size: 13px;
+  color: var(--text-muted);
+  opacity: 0.85;
+}
 @media (max-width: 760px) {
   .blog-page {
     padding: 24px 16px 40px;
