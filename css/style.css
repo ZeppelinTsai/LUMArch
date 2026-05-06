@@ -319,8 +319,13 @@ body {
   width: 100%;
 }
 .welcome-icon {
-  font-size: 48px;
   margin-bottom: 16px;
+}
+
+.welcome-icon img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
 }
 .welcome h1 {
   font-family: "Noto Serif TC", serif;
