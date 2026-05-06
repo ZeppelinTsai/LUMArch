@@ -69,8 +69,8 @@ async function sendMessage() {
           html: `
         <div style="line-height:1.8">
           請升級 Pro 繼續使用<br>
-          <strong>Pro 方案：NT$99 / 月</strong><br>
-          <small>更高查詢額度 / 附條文來源 / 節省手動翻法規時間</small>
+          <strong>Pro 方案：NT$199 / 月</strong><br>
+          <small>每月 150 次 AI 法規查詢 / 附條文來源 / 節省手動翻法規時間</small>
         </div>
       `,
           showCancelButton: true,
